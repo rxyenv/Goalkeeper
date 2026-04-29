@@ -51,16 +51,33 @@ public class UIManager : MonoBehaviour
     [Tooltip("Floating text that shows the save streak (e.g. '6 SAVES!'). Assign the TMP object; it is toggled by code.")]
     [SerializeField] private TextMeshProUGUI streakText;
 
-    // ── Win Score Targets ─────────────────────────────────────────────────────
-    [Header("Win Score Targets")]
-    [Tooltip("Points needed to win on Beginner difficulty.")]
-    [SerializeField] private int beginnerWinScore = 5;
+    [Tooltip("High score label shown on the Game Over screen.")]
+    [SerializeField] private TextMeshProUGUI highScoreText;
 
-    [Tooltip("Points needed to win on Intermediate difficulty.")]
-    [SerializeField] private int intermediateWinScore = 10;
+    [Tooltip("High score label shown on the Win screen.")]
+    [SerializeField] private TextMeshProUGUI winHighScoreText;
 
-    [Tooltip("Points needed to win on Difficult difficulty.")]
-    [SerializeField] private int difficultWinScore = 15;
+    // ── Win Save Targets ──────────────────────────────────────────────────────
+    [Header("Win Save Targets")]
+    [Tooltip("Total saves needed to win on Beginner difficulty.")]
+    [SerializeField] private int beginnerWinSaves = 10;
+
+    [Tooltip("Total saves needed to win on Intermediate difficulty.")]
+    [SerializeField] private int intermediateWinSaves = 20;
+
+    [Tooltip("Total saves needed to win on Difficult difficulty.")]
+    [SerializeField] private int difficultWinSaves = 30;
+
+    // ── Scoring ───────────────────────────────────────────────────────────────
+    [Header("Scoring")]
+    [Tooltip("Base points awarded per save before multiplier.")]
+    [SerializeField] private int basePointsPerSave = 100;
+
+    [Tooltip("Streak saves required to advance the multiplier by 1.")]
+    [SerializeField] private int savesPerMultiplierTick = 3;
+
+    [Tooltip("Maximum streak multiplier cap.")]
+    [SerializeField] private int maxMultiplier = 5;
 
     // ── Lives Icons ───────────────────────────────────────────────────────────
     [Header("Lives Icons")]
@@ -105,6 +122,8 @@ public class UIManager : MonoBehaviour
     private int _goals = 3;
     private int _points;
     private int _saveStreak;
+    private int _totalSaves;
+    private int _multiplier = 1;
 
     private static bool _skipMenu;
     private static bool _skipLevelPanel;
@@ -131,9 +150,11 @@ public class UIManager : MonoBehaviour
         _goals = 3;
         _points = 0;
         _saveStreak = 0;
+        _totalSaves = 0;
+        _multiplier = 1;
 
         if (score != null)
-            score.text = "Points: 0";
+            score.text = "0";
 
         if (!_skipMenu)
         {
@@ -158,24 +179,28 @@ public class UIManager : MonoBehaviour
 
     public void ScoreIncrease()
     {
-        _points++;
         _saveStreak++;
-        FlashScreen(SaveColor);
-        if (score != null)
-            score.text = "Points: " + _points;
+        _totalSaves++;
+        _multiplier = Mathf.Min(_saveStreak / savesPerMultiplierTick + 1, maxMultiplier);
+        _points += basePointsPerSave * _multiplier;
 
-        if (_saveStreak >= 3 && _saveStreak % 3 == 0)
+        FlashScreen(SaveColor);
+
+        if (score != null)
+            score.text = _totalSaves.ToString();
+
+        if (_saveStreak >= savesPerMultiplierTick && _saveStreak % savesPerMultiplierTick == 0)
             ShowStreakText(_saveStreak);
 
-        int targetScore = PlayerPrefs.GetInt("Level") switch
+        int targetSaves = PlayerPrefs.GetInt("Level") switch
         {
-            0 => beginnerWinScore,
-            1 => intermediateWinScore,
-            2 => difficultWinScore,
-            _ => beginnerWinScore
+            0 => beginnerWinSaves,
+            1 => intermediateWinSaves,
+            2 => difficultWinSaves,
+            _ => beginnerWinSaves
         };
 
-        if (_points >= targetScore)
+        if (_totalSaves >= targetSaves)
             WinGame();
     }
 
@@ -184,8 +209,17 @@ public class UIManager : MonoBehaviour
         ballController?.StopBall();
         if (ballController != null) ballController.enabled = false;
         if (player != null) player.enabled = false;
+
+        int prev = PlayerPrefs.GetInt("HighScore", 0);
+        if (_totalSaves > prev)
+            PlayerPrefs.SetInt("HighScore", _totalSaves);
+        int best = Mathf.Max(_totalSaves, prev);
+
         if (winScoreText != null)
-            winScoreText.text = "POINTS: " + _points;
+            winScoreText.text = _totalSaves + " SAVES";
+        if (winHighScoreText != null)
+            winHighScoreText.text = "BEST: " + best.ToString("N0");
+
         Time.timeScale = 0f;
         winPanel?.SetActive(true);
     }
@@ -193,6 +227,7 @@ public class UIManager : MonoBehaviour
     public void Losegoal()
     {
         _saveStreak = 0;
+        _multiplier = 1;
         FlashScreen(GoalColor);
         _goals--;
         if (_goals == 2)
@@ -223,7 +258,7 @@ public class UIManager : MonoBehaviour
 
         while (timer < duration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
             float scale = 1f - timer / duration;
             for (int index = 0; index < fadeObjects.Length; index++)
                 if (fadeObjects[index] != null)
@@ -246,9 +281,16 @@ public class UIManager : MonoBehaviour
 
     private void GameOver()
     {
+        int prev = PlayerPrefs.GetInt("HighScore", 0);
+        if (_totalSaves > prev)
+            PlayerPrefs.SetInt("HighScore", _totalSaves);
+        int best = Mathf.Max(_totalSaves, prev);
+
         Time.timeScale = 0f;
         if (finalScoreText != null)
-            finalScoreText.text = "POINTS: " + _points;
+            finalScoreText.text = _totalSaves + " SAVES";
+        if (highScoreText != null)
+            highScoreText.text = "BEST: " + best.ToString("N0");
         gameOverPanel?.SetActive(true);
     }
 
@@ -315,6 +357,7 @@ public class UIManager : MonoBehaviour
 
     public void HomeButton()
     {
+        ResetGameState();
         if (pausePanel != null && pausePanel.activeSelf)
         {
             pausePanel.transform.DOKill();
@@ -325,6 +368,7 @@ public class UIManager : MonoBehaviour
                     pausePanel.SetActive(false);
                     settingsPanel?.SetActive(false);
                     gameOverPanel?.SetActive(false);
+                    livesPanel?.SetActive(false);
                     mainMenuPanel?.SetActive(true);
                 });
         }
@@ -333,8 +377,28 @@ public class UIManager : MonoBehaviour
             pausePanel?.SetActive(false);
             settingsPanel?.SetActive(false);
             gameOverPanel?.SetActive(false);
+            livesPanel?.SetActive(false);
             mainMenuPanel?.SetActive(true);
         }
+    }
+
+    private void ResetGameState()
+    {
+        Time.timeScale = 1f;
+        _points = 0;
+        _saveStreak = 0;
+        _totalSaves = 0;
+        _multiplier = 1;
+        if (score != null) score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+        if (ballController != null)
+        {
+            ballController.StopBall();
+            ballController.enabled = true;
+        }
+        if (player != null) player.enabled = true;
     }
 
     public void BackButton() => settingsPanel?.SetActive(false);
@@ -422,6 +486,11 @@ public class UIManager : MonoBehaviour
         if (_holdGameCoroutine != null)
             StopCoroutine(_holdGameCoroutine);
         if (_resumeCoroutine != null)
+        {
             StopCoroutine(_resumeCoroutine);
+            Time.timeScale = 1f;
+            if (ballController != null) ballController.enabled = true;
+            if (player != null) player.enabled = true;
+        }
     }
 }

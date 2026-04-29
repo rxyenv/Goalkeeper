@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
     private float _targetX;
     private Rigidbody _rb;
     private Animator _animator;
+    private bool _scoredThisBall;
 
   void Start()
   {
@@ -37,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
       return;
     }
     _rb.freezeRotation = true;
+    _rb.isKinematic = true;
     _currentLane = TotalLanes / 2;
     _targetX = 0f;
     _animator = GetComponent<Animator>();
@@ -70,13 +72,22 @@ public class PlayerMovement : MonoBehaviour
     _rb.MovePosition(Vector3.MoveTowards(_rb.position, targetPosition, speed * Time.fixedDeltaTime));
   }
 
+  public void ResetSaveGuard() => _scoredThisBall = false;
+
   void OnCollisionEnter(Collision collision)
   {
-    if (collision.gameObject.CompareTag("Ball"))
+    if (collision.gameObject.CompareTag("Ball") && !_scoredThisBall)
     {
+      _scoredThisBall = true;
       uiManager?.ScoreIncrease();
       audioManager?.PlaySave();
       ballController?.RegisterSave();
     }
+  }
+
+  void OnCollisionExit(Collision collision)
+  {
+    if (collision.gameObject.CompareTag("Ball"))
+      _scoredThisBall = false;
   }
 }

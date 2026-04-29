@@ -28,6 +28,12 @@ public class BallController : MonoBehaviour
 	[Tooltip("The kicker GameObject — repositioned and reanimated before each kick.")]
 	[SerializeField] private GameObject kicker;
 
+	[Tooltip("Rest world-space position the kicker returns to before each kick. Set this in the Inspector to the kicker's idle position.")]
+	[SerializeField] private Vector3 kickerRestPosition;
+
+	[Tooltip("Rest local rotation the kicker returns to before each kick.")]
+	[SerializeField] private Vector3 kickerRestRotationEuler;
+
 	[Tooltip("Plays kick, save, and goal sound effects.")]
 	[SerializeField] private AudioManager audioManager;
 
@@ -37,13 +43,12 @@ public class BallController : MonoBehaviour
 	private enum ShotType { Driven, Lofted, Curling, Knuckleball, PowerDriven }
 
 	private static readonly int KickHash = Animator.StringToHash("Kick");
-	private readonly float[] lanes = { -8f, -4f, 0f, 4f, 8f };
+	private readonly float[] lanes = { -4f, 0f, 4f };
 
 	private Rigidbody _rb;
 	private bool _isResetting;
 	private Vector3 _startPosition;
-	private Vector3 _kickerStartPosition;
-	private Quaternion _kickerStartRotation;
+	private Quaternion _kickerRestRotation;
 	private Coroutine _activeCoroutine;
 	private Coroutine _knuckleballCoroutine;
 	private bool _isGameOver;
@@ -62,12 +67,8 @@ public class BallController : MonoBehaviour
 	    return;
 	  }
 	  _startPosition = new Vector3(0, transform.position.y, startingZPos);
-	  if (kicker != null)
-	  {
-	    _kickerStartPosition = kicker.transform.position;
-	    _kickerStartRotation = kicker.transform.localRotation;
-	  }
-	  transform.position = _startPosition;
+	  _kickerRestRotation = Quaternion.Euler(kickerRestRotationEuler);
+	  _rb.position = _startPosition;
 	  _rb.linearVelocity = Vector3.zero;
 	  _rb.angularVelocity = Vector3.zero;
 	}
@@ -188,44 +189,6 @@ public class BallController : MonoBehaviour
 	      _rb.AddForce(Vector3.up * baseUpwardForce * 0.6f, ForceMode.Impulse);
 	  }
 
-	// High arc, drops sharply — goalkeeper must wait
-	private void ShootLofted(float targetX, float speedMult)
-	{
-	  Vector3 dir = new Vector3(targetX - transform.position.x, 0f, 30f).normalized;
-	  float power = baseForwardForce * speedMult * Random.Range(0.75f, 0.9f);
-	  _rb.AddForce(dir * power, ForceMode.Impulse);
-	  _rb.AddForce(Vector3.up * baseUpwardForce * 1.6f, ForceMode.Impulse);
-	}
-
-	// Aimed slightly off target then curves toward goal
-	private void ShootCurling(float targetX, float speedMult)
-	{
-	  float offset = targetX > 0f ? -3f : 3f;
-	  Vector3 dir = new Vector3((targetX + offset) - transform.position.x, 0f, 30f).normalized;
-	  float power = baseForwardForce * speedMult * Random.Range(0.85f, 1.0f);
-	  _rb.AddForce(dir * power, ForceMode.Impulse);
-	  _rb.AddForce(Vector3.up * baseUpwardForce * 0.9f, ForceMode.Impulse);
-	}
-
-	// Unpredictable wobble via mid-flight perturbations
-	private void ShootKnuckleball(float targetX, float speedMult)
-	{
-	  Vector3 dir = new Vector3(targetX - transform.position.x, 0f, 30f).normalized;
-	  float power = baseForwardForce * speedMult * Random.Range(0.8f, 0.95f);
-	  _rb.AddForce(dir * power, ForceMode.Impulse);
-	  _rb.AddForce(Vector3.up * baseUpwardForce * 0.8f, ForceMode.Impulse);
-	  _knuckleballCoroutine = StartCoroutine(KnuckleballPerturbations());
-	}
-
-	// Maximum power, slight upward — intimidating
-	private void ShootPowerDriven(float targetX, float speedMult)
-	{
-	  Vector3 dir = new Vector3(targetX - transform.position.x, 0f, 30f).normalized;
-	  float power = baseForwardForce * speedMult * Random.Range(1.15f, 1.35f);
-	  _rb.AddForce(dir * power, ForceMode.Impulse);
-	  _rb.AddForce(Vector3.up * baseUpwardForce * 0.6f, ForceMode.Impulse);
-	}
-
 	private IEnumerator KnuckleballPerturbations()
 	{
 	  for (int i = 0; i < 6; i++)
@@ -285,8 +248,8 @@ public class BallController : MonoBehaviour
 	{
 	  if (kicker != null)
 	  {
-	    kicker.transform.position = _kickerStartPosition;
-	    kicker.transform.localRotation = _kickerStartRotation;
+	    kicker.transform.position = kickerRestPosition;
+	    kicker.transform.localRotation = _kickerRestRotation;
 	  }
 	  if (ballKickAnimator != null)
 	  {
@@ -334,10 +297,10 @@ public class BallController : MonoBehaviour
 	  _isShot = false;
 	  if (kicker != null)
 	  {
-	    kicker.transform.position = _kickerStartPosition;
-	    kicker.transform.localRotation = _kickerStartRotation;
+	    kicker.transform.position = kickerRestPosition;
+	    kicker.transform.localRotation = _kickerRestRotation;
 	  }
-	  transform.position = _startPosition;
+	  _rb.position = _startPosition;
 	  _isResetting = false;
 	  _activeCoroutine = StartCoroutine(BallWait());
 	}
