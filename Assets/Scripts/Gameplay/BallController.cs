@@ -45,6 +45,7 @@ public class BallController : MonoBehaviour
     private Vector3 kickerStartPosition;
     private Quaternion kickerStartRotation;
     private Coroutine activeCoroutine;
+    private Coroutine knuckleballCoroutine;
     private bool isGameOver;
 
     private float speedMultiplier = 1f;
@@ -54,6 +55,12 @@ public class BallController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("Rigidbody not found on " + gameObject.name, this);
+            enabled = false;
+            return;
+        }
         startPosition = new Vector3(0, transform.position.y, startingZPos);
         if (kicker != null)
         {
@@ -169,7 +176,7 @@ public class BallController : MonoBehaviour
         float power = baseForwardForce * sm * Random.Range(0.8f, 0.95f);
         rb.AddForce(dir * power, ForceMode.Impulse);
         rb.AddForce(Vector3.up * baseUpwardForce * 0.8f, ForceMode.Impulse);
-        StartCoroutine(KnuckleballPerturbations());
+        knuckleballCoroutine = StartCoroutine(KnuckleballPerturbations());
     }
 
     // Maximum power, slight upward — intimidating
@@ -220,9 +227,20 @@ public class BallController : MonoBehaviour
         isGameOver = true;
         isShot = false;
         if (activeCoroutine != null)
+        {
             StopCoroutine(activeCoroutine);
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+            activeCoroutine = null;
+        }
+        if (knuckleballCoroutine != null)
+        {
+            StopCoroutine(knuckleballCoroutine);
+            knuckleballCoroutine = null;
+        }
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     IEnumerator BallWait()
@@ -238,6 +256,7 @@ public class BallController : MonoBehaviour
             ballKickAnimator.SetTrigger(KickHash);
         }
         yield return new WaitForSeconds(2.1f);
+        activeCoroutine = null;
         if (!isGameOver)
             Shoot();
     }
@@ -254,15 +273,26 @@ public class BallController : MonoBehaviour
         if (isResetting) return;
         isResetting = true;
         if (activeCoroutine != null)
+        {
             StopCoroutine(activeCoroutine);
+            activeCoroutine = null;
+        }
+        if (knuckleballCoroutine != null)
+        {
+            StopCoroutine(knuckleballCoroutine);
+            knuckleballCoroutine = null;
+        }
         activeCoroutine = StartCoroutine(ResetBall());
     }
 
     private IEnumerator ResetBall()
     {
         yield return new WaitForSeconds(1f);
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
         isShot = false;
         if (kicker != null)
         {

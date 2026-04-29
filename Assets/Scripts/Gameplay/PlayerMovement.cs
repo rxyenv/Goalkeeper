@@ -30,10 +30,18 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        if (rb == null)
+        {
+            Debug.LogError("Rigidbody not found on " + gameObject.name, this);
+            enabled = false;
+            return;
+        }
         rb.freezeRotation = true;
         currentLane = TotalLanes / 2;
         targetX = 0f;
         animator = GetComponent<Animator>();
+        if (animator == null)
+            Debug.LogWarning("Animator not found on " + gameObject.name, this);
         // Snap to center lane immediately so first FixedUpdate has correct target
         Vector3 pos = rb.position;
         pos.x = targetX;

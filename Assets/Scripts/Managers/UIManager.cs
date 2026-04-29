@@ -29,7 +29,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject countdownPanel;
 
     [Tooltip("Difficulty selection screen shown before the first kick.")]
-    public GameObject levelsPanel;
+    [SerializeField] private GameObject levelsPanel;
 
     [Tooltip("Settings screen toggled from the pause menu.")]
     [SerializeField] private GameObject settingsPanel;
@@ -98,6 +98,9 @@ public class UIManager : MonoBehaviour
     private static readonly Color SaveColor = new Color(0f, 1f, 0f, 0.45f);
     private static readonly Color GoalColor = new Color(1f, 0f, 0f, 0.45f);
     private Coroutine _flashCoroutine;
+    private Coroutine _fadeOutCoroutine;
+    private Coroutine _holdGameCoroutine;
+    private Coroutine _resumeCoroutine;
 
     private int goals = 3;
     private int points;
@@ -199,7 +202,7 @@ public class UIManager : MonoBehaviour
         else if (goals == 0)
         {
             ball1?.SetActive(false);
-            StartCoroutine(FadeOutGameObjects());
+            _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
         }
     }
 
@@ -231,7 +234,7 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < fadeObjects.Length; i++)
             fadeObjects[i]?.SetActive(false);
 
-        StartCoroutine(HoldGame());
+        _holdGameCoroutine = StartCoroutine(HoldGame());
     }
 
     private IEnumerator HoldGame()
@@ -306,7 +309,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(ResumeCountdown());
+            _resumeCoroutine = StartCoroutine(ResumeCountdown());
         }
     }
 
@@ -403,9 +406,22 @@ public class UIManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(1f);
         }
 
+        _resumeCoroutine = null;
         countdownPanel?.SetActive(false);
         Time.timeScale = 1f;
         if (ballController != null) ballController.enabled = true;
         if (player != null) player.enabled = true;
+    }
+
+    void OnDestroy()
+    {
+        if (_flashCoroutine != null)
+            StopCoroutine(_flashCoroutine);
+        if (_fadeOutCoroutine != null)
+            StopCoroutine(_fadeOutCoroutine);
+        if (_holdGameCoroutine != null)
+            StopCoroutine(_holdGameCoroutine);
+        if (_resumeCoroutine != null)
+            StopCoroutine(_resumeCoroutine);
     }
 }
