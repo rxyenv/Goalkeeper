@@ -102,12 +102,12 @@ public class UIManager : MonoBehaviour
     private Coroutine _holdGameCoroutine;
     private Coroutine _resumeCoroutine;
 
-    private int goals = 3;
-    private int points;
-    private int saveStreak;
+    private int _goals = 3;
+    private int _points;
+    private int _saveStreak;
 
-    private static bool skipMenu;
-    private static bool skipLevelPanel;
+    private static bool _skipMenu;
+    private static bool _skipLevelPanel;
 
     void Start()
     {
@@ -128,24 +128,24 @@ public class UIManager : MonoBehaviour
         ball2?.SetActive(true);
         ball3?.SetActive(true);
 
-        goals = 3;
-        points = 0;
-        saveStreak = 0;
+        _goals = 3;
+        _points = 0;
+        _saveStreak = 0;
 
         if (score != null)
             score.text = "Points: 0";
 
-        if (!skipMenu)
+        if (!_skipMenu)
         {
             mainMenuPanel?.SetActive(true);
             return;
         }
 
-        skipMenu = false;
+        _skipMenu = false;
 
-        if (skipLevelPanel)
+        if (_skipLevelPanel)
         {
-            skipLevelPanel = false;
+            _skipLevelPanel = false;
             livesPanel?.SetActive(true);
             Time.timeScale = 1f;
             ballController?.StartBall();
@@ -158,14 +158,14 @@ public class UIManager : MonoBehaviour
 
     public void ScoreIncrease()
     {
-        points++;
-        saveStreak++;
+        _points++;
+        _saveStreak++;
         FlashScreen(SaveColor);
         if (score != null)
-            score.text = "Points: " + points;
+            score.text = "Points: " + _points;
 
-        if (saveStreak >= 3 && saveStreak % 3 == 0)
-            ShowStreakText(saveStreak);
+        if (_saveStreak >= 3 && _saveStreak % 3 == 0)
+            ShowStreakText(_saveStreak);
 
         int targetScore = PlayerPrefs.GetInt("Level") switch
         {
@@ -175,7 +175,7 @@ public class UIManager : MonoBehaviour
             _ => beginnerWinScore
         };
 
-        if (points >= targetScore)
+        if (_points >= targetScore)
             WinGame();
     }
 
@@ -185,21 +185,21 @@ public class UIManager : MonoBehaviour
         if (ballController != null) ballController.enabled = false;
         if (player != null) player.enabled = false;
         if (winScoreText != null)
-            winScoreText.text = "POINTS: " + points;
+            winScoreText.text = "POINTS: " + _points;
         Time.timeScale = 0f;
         winPanel?.SetActive(true);
     }
 
     public void Losegoal()
     {
-        saveStreak = 0;
+        _saveStreak = 0;
         FlashScreen(GoalColor);
-        goals--;
-        if (goals == 2)
+        _goals--;
+        if (_goals == 2)
             ball3?.SetActive(false);
-        else if (goals == 1)
+        else if (_goals == 1)
             ball2?.SetActive(false);
-        else if (goals == 0)
+        else if (_goals == 0)
         {
             ball1?.SetActive(false);
             _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
@@ -217,22 +217,22 @@ public class UIManager : MonoBehaviour
         float timer = 0f;
 
         Vector3[] initialScales = new Vector3[fadeObjects.Length];
-        for (int i = 0; i < fadeObjects.Length; i++)
-            if (fadeObjects[i] != null)
-                initialScales[i] = fadeObjects[i].transform.localScale;
+        for (int index = 0; index < fadeObjects.Length; index++)
+            if (fadeObjects[index] != null)
+                initialScales[index] = fadeObjects[index].transform.localScale;
 
         while (timer < duration)
         {
             timer += Time.deltaTime;
             float scale = 1f - timer / duration;
-            for (int i = 0; i < fadeObjects.Length; i++)
-                if (fadeObjects[i] != null)
-                    fadeObjects[i].transform.localScale = initialScales[i] * scale;
+            for (int index = 0; index < fadeObjects.Length; index++)
+                if (fadeObjects[index] != null)
+                    fadeObjects[index].transform.localScale = initialScales[index] * scale;
             yield return null;
         }
 
-        for (int i = 0; i < fadeObjects.Length; i++)
-            fadeObjects[i]?.SetActive(false);
+        for (int index = 0; index < fadeObjects.Length; index++)
+            fadeObjects[index]?.SetActive(false);
 
         _holdGameCoroutine = StartCoroutine(HoldGame());
     }
@@ -248,7 +248,7 @@ public class UIManager : MonoBehaviour
     {
         Time.timeScale = 0f;
         if (finalScoreText != null)
-            finalScoreText.text = "POINTS: " + points;
+            finalScoreText.text = "POINTS: " + _points;
         gameOverPanel?.SetActive(true);
     }
 
@@ -268,7 +268,7 @@ public class UIManager : MonoBehaviour
 
     public void StartButton()
     {
-        skipMenu = true;
+        _skipMenu = true;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -343,9 +343,9 @@ public class UIManager : MonoBehaviour
 
     public void Restart()
     {
-        points = 0;
-        skipMenu = true;
-        skipLevelPanel = true;
+        _points = 0;
+        _skipMenu = true;
+        _skipLevelPanel = true;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -400,9 +400,9 @@ public class UIManager : MonoBehaviour
         if (ballController != null) ballController.enabled = false;
 
         string[] counts = { "3", "2", "1" };
-        foreach (string c in counts)
+        foreach (string count in counts)
         {
-            if (countdownText != null) countdownText.text = c;
+            if (countdownText != null) countdownText.text = count;
             yield return new WaitForSecondsRealtime(1f);
         }
 
