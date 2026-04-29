@@ -11,35 +11,27 @@ public class UIManager : MonoBehaviour
     // ── Panels ────────────────────────────────────────────────────────────────
     [Header("Panels")]
     [Tooltip("Shown when the player pauses the game.")]
-    [FormerlySerializedAs("PausePannel")]
     [SerializeField] private GameObject pausePanel;
 
     [Tooltip("First screen shown on launch — Play / Quit buttons.")]
-    [FormerlySerializedAs("MainMenuPannel")]
     [SerializeField] private GameObject mainMenuPanel;
 
     [Tooltip("Shown when the player loses all lives.")]
-    [FormerlySerializedAs("GameOverPannel")]
     [SerializeField] private GameObject gameOverPanel;
 
     [Tooltip("Shown when the player reaches the target score.")]
-    [FormerlySerializedAs("WinPannel")]
     [SerializeField] private GameObject winPanel;
 
     [Tooltip("HUD bar showing remaining lives (ball icons).")]
-    [FormerlySerializedAs("LivesPannel")]
     [SerializeField] private GameObject livesPanel;
 
     [Tooltip("Overlay that counts down 3-2-1 after unpausing.")]
-    [FormerlySerializedAs("CountdownPannel")]
     [SerializeField] private GameObject countdownPanel;
 
     [Tooltip("Difficulty selection screen shown before the first kick.")]
-    [FormerlySerializedAs("LevelsPannel")]
     public GameObject levelsPanel;
 
     [Tooltip("Settings screen toggled from the pause menu.")]
-    [FormerlySerializedAs("SettingsPannel")]
     [SerializeField] private GameObject settingsPanel;
 
     // ── HUD Text ──────────────────────────────────────────────────────────────
@@ -73,15 +65,12 @@ public class UIManager : MonoBehaviour
     // ── Lives Icons ───────────────────────────────────────────────────────────
     [Header("Lives Icons")]
     [Tooltip("Ball icon representing life 1 (last to disappear).")]
-    [FormerlySerializedAs("Ball1")]
     [SerializeField] private GameObject ball1;
 
     [Tooltip("Ball icon representing life 2.")]
-    [FormerlySerializedAs("Ball2")]
     [SerializeField] private GameObject ball2;
 
     [Tooltip("Ball icon representing life 3 (first to disappear).")]
-    [FormerlySerializedAs("Ball3")]
     [SerializeField] private GameObject ball3;
 
     // ── Scene References ──────────────────────────────────────────────────────
@@ -99,7 +88,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private SettingsManager settingsManager;
 
     [Tooltip("The kicker GameObject — scaled to zero on game over fade-out.")]
-    [FormerlySerializedAs("Kicker")]
     [SerializeField] private GameObject kicker;
 
     // ── Screen Flash ──────────────────────────────────────────────────────────
@@ -121,30 +109,47 @@ public class UIManager : MonoBehaviour
     void Start()
     {
         Time.timeScale = 0f;
+
+        // Reset all panels to known-off state so saved scene state doesn't bleed in
+        pausePanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        winPanel?.SetActive(false);
+        countdownPanel?.SetActive(false);
+        settingsPanel?.SetActive(false);
+        mainMenuPanel?.SetActive(false);
+        levelsPanel?.SetActive(false);
+        livesPanel?.SetActive(false);
+
+        // Re-enable all life icons
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        goals = 3;
+        points = 0;
+        saveStreak = 0;
+
         if (score != null)
             score.text = "Points: 0";
 
         if (!skipMenu)
         {
             mainMenuPanel?.SetActive(true);
-            livesPanel?.SetActive(false);
             return;
         }
 
-        mainMenuPanel?.SetActive(false);
         skipMenu = false;
 
         if (skipLevelPanel)
         {
-            levelsPanel?.SetActive(false);
-            livesPanel?.SetActive(true);
             skipLevelPanel = false;
+            livesPanel?.SetActive(true);
             Time.timeScale = 1f;
+            ballController?.StartBall();
         }
         else
         {
             levelsPanel?.SetActive(true);
-            livesPanel?.SetActive(false);
         }
     }
 
@@ -255,6 +260,7 @@ public class UIManager : MonoBehaviour
         levelsPanel?.SetActive(false);
         livesPanel?.SetActive(true);
         Time.timeScale = 1f;
+        ballController?.StartBall();
     }
 
     public void StartButton()

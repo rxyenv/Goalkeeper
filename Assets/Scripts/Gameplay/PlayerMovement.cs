@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private BallController ballController;
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
-    private const int TotalLanes = 5;
+    private const int TotalLanes = 3;
     private int currentLane;
     private float targetX;
     private Rigidbody rb;
@@ -32,7 +32,12 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
         currentLane = TotalLanes / 2;
+        targetX = 0f;
         animator = GetComponent<Animator>();
+        // Snap to center lane immediately so first FixedUpdate has correct target
+        Vector3 pos = rb.position;
+        pos.x = targetX;
+        rb.position = pos;
     }
 
     void Update()

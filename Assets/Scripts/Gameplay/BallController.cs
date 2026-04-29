@@ -61,6 +61,14 @@ public class BallController : MonoBehaviour
             kickerStartRotation = kicker.transform.localRotation;
         }
         transform.position = startPosition;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    // Called by UIManager when gameplay starts (difficulty chosen or restart)
+    public void StartBall()
+    {
+        if (isGameOver || activeCoroutine != null) return;
         activeCoroutine = StartCoroutine(BallWait());
     }
 
