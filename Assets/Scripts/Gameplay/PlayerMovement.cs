@@ -76,18 +76,30 @@ public class PlayerMovement : MonoBehaviour
 
   void OnCollisionEnter(Collision collision)
   {
-    if (collision.gameObject.CompareTag("Ball") && !_scoredThisBall)
+    if (collision.gameObject.CompareTag("Ball"))
     {
-      _scoredThisBall = true;
-      uiManager?.ScoreIncrease();
-      audioManager?.PlaySave();
-      ballController?.RegisterSave();
+      Debug.Log($"[Save] OnCollisionEnter ball. _scoredThisBall={_scoredThisBall}");
+      if (!_scoredThisBall)
+      {
+        _scoredThisBall = true;
+        Debug.Log($"[Save] ScoreIncrease called. totalSaves will increment.");
+        uiManager?.ScoreIncrease();
+        audioManager?.PlaySave();
+        ballController?.RegisterSave();
+      }
+      else
+      {
+        Debug.Log("[Save] Duplicate collision blocked by guard.");
+      }
     }
   }
 
   void OnCollisionExit(Collision collision)
   {
     if (collision.gameObject.CompareTag("Ball"))
+    {
+      Debug.Log($"[Save] OnCollisionExit ball. _scoredThisBall was={_scoredThisBall} → resetting to false.");
       _scoredThisBall = false;
+    }
   }
 }

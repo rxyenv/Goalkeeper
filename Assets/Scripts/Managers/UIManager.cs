@@ -183,6 +183,7 @@ public class UIManager : MonoBehaviour
         _totalSaves++;
         _multiplier = Mathf.Min(_saveStreak / savesPerMultiplierTick + 1, maxMultiplier);
         _points += basePointsPerSave * _multiplier;
+        Debug.Log($"[Score] ScoreIncrease → totalSaves={_totalSaves}, saveStreak={_saveStreak}, multiplier={_multiplier}, points={_points}");
 
         FlashScreen(SaveColor);
 

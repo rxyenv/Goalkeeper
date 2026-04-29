@@ -103,6 +103,7 @@ public class BallController : MonoBehaviour
 	{
 	  _saveStreak++;
 	  _speedMultiplier = Mathf.Min(1f + _saveStreak * speedIncreasePerSave, maxSpeedMultiplier);
+	  Debug.Log($"[BallController] RegisterSave → _saveStreak={_saveStreak}, _speedMultiplier={_speedMultiplier:F2}");
 	}
 
 	public void RegisterGoal()
