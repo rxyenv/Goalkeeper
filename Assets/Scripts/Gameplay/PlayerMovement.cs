@@ -3,10 +3,22 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movement")]
+    [Tooltip("Units per second the goalkeeper moves toward the target lane position.")]
     [SerializeField] private float speed = 12f;
+
+    [Tooltip("World-space distance between adjacent lanes. Must match the ball's lane spacing.")]
     [SerializeField] private float laneDistance = 4f;
+
+    [Header("References")]
+    [Tooltip("Notified on ball save — increments score and triggers green flash.")]
     [SerializeField] private UIManager uiManager;
-    [SerializeField] private Audiomanager audioManager;
+
+    [Tooltip("Plays the save sound effect on ball contact.")]
+    [SerializeField] private AudioManager audioManager;
+
+    [Tooltip("Registers the save (increases speed multiplier) on ball contact.")]
+    [SerializeField] private BallController ballController;
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
     private const int TotalLanes = 5;
@@ -51,6 +63,7 @@ public class PlayerMovement : MonoBehaviour
         {
             uiManager?.ScoreIncrease();
             audioManager?.PlaySave();
+            ballController?.RegisterSave();
         }
     }
 }

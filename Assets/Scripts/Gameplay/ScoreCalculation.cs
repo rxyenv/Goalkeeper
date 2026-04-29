@@ -1,10 +1,17 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using TMPro;
 
 public class ScoreCalculation : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI Coins;
-    [SerializeField] private TextMeshProUGUI Score;
+    [Header("HUD Text")]
+    [Tooltip("Label that shows the number of coins collected this session.")]
+    [FormerlySerializedAs("Coins")]
+    [SerializeField] private TextMeshProUGUI coins;
+
+    [Tooltip("Label that shows elapsed time in seconds (used as the score in this mode).")]
+    [FormerlySerializedAs("Score")]
+    [SerializeField] private TextMeshProUGUI score;
 
     private int coinsCollected;
     private float timer;
@@ -24,18 +31,18 @@ public class ScoreCalculation : MonoBehaviour
     {
         timer += Time.deltaTime;
         FinalScore = (int)timer;
-        if (Score != null)
-            Score.text = FinalScore.ToString();
+        if (score != null)
+            score.text = FinalScore.ToString();
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Coin"))
+        if (other.CompareTag("Coin"))
         {
             coinsCollected++;
             FinalCoins = coinsCollected;
-            if (Coins != null)
-                Coins.text = coinsCollected.ToString();
+            if (coins != null)
+                coins.text = coinsCollected.ToString();
         }
     }
 }

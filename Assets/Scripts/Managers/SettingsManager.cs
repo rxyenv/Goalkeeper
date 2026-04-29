@@ -3,10 +3,21 @@ using UnityEngine.UI;
 
 public class SettingsManager : MonoBehaviour
 {
+    [Header("Audio")]
+    [Tooltip("AudioSource controlled by the volume slider and music toggle.")]
     [SerializeField] private AudioSource audioSource;
-    public Toggle musicToggle;
-    public Slider volumeSlider;
+
+    [Tooltip("Toggle that mutes / unmutes the AudioSource.")]
+    [SerializeField] private Toggle musicToggle;
+
+    [Tooltip("Slider (0–1) that sets AudioSource.volume in real time.")]
+    [SerializeField] private Slider volumeSlider;
+
+    [Header("Settings Panels")]
+    [Tooltip("Panel shown when the Audio tab is active in settings.")]
     [SerializeField] private GameObject musicPanel;
+
+    [Tooltip("Panel shown when the Help / Instructions tab is active in settings.")]
     [SerializeField] private GameObject instructionsPanel;
 
     void Start()

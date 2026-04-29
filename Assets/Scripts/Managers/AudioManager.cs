@@ -1,11 +1,22 @@
 using UnityEngine;
 
-public class Audiomanager : MonoBehaviour
+public class AudioManager : MonoBehaviour
 {
+    [Header("Audio Source")]
+    [Tooltip("The AudioSource component used for all one-shot SFX playback.")]
     [SerializeField] private AudioSource audioSource;
+
+    [Header("Sound Clips")]
+    [Tooltip("Played when the kicker strikes the ball.")]
     [SerializeField] private AudioClip kickSound;
+
+    [Tooltip("Played when the goalkeeper successfully saves a shot.")]
     [SerializeField] private AudioClip saveSound;
+
+    [Tooltip("Played when the ball crosses the goal line.")]
     [SerializeField] private AudioClip goalSound;
+
+    [Tooltip("Played after the game-over fade-out sequence completes.")]
     [SerializeField] private AudioClip gameOverSound;
 
     private void Play(AudioClip clip)
