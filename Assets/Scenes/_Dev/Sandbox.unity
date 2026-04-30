@@ -5088,16 +5088,28 @@ MonoBehaviour:
   pausePanel: {fileID: 1456552613}
   mainMenuPanel: {fileID: 1607489261}
   gameOverPanel: {fileID: 1742877628}
+  winPanel: {fileID: 255673274}
+  livesPanel: {fileID: 1845235183}
   countdownPanel: {fileID: 2007257317}
   levelsPanel: {fileID: 1292006713}
   settingsPanel: {fileID: 2045669211}
+  score: {fileID: 1698825836}
+  finalScoreText: {fileID: 1516362181}
+  winScoreText: {fileID: 757215283}
   countdownText: {fileID: 412357583}
-  scoreText: {fileID: 927963032}
+  streakText: {fileID: 927963032}
+  highScoreText: {fileID: 743790903}
+  winHighScoreText: {fileID: 1870080211}
+  ball1: {fileID: 976470072}
+  ball2: {fileID: 1980610575}
+  ball3: {fileID: 749111023}
+  gameManager: {fileID: 1982394322}
   player: {fileID: 103771008}
   ballController: {fileID: 1992353736}
   audioManager: {fileID: 1480932392}
   settingsManager: {fileID: 2045669212}
   kicker: {fileID: 1162472404}
+  flashImage: {fileID: 371230527}
 --- !u!114 &994435627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12678,6 +12690,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1980610575}
   m_CullTransparentMesh: 1
+--- !u!1 &1982394320
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1982394321}
+  - component: {fileID: 1982394322}
+  m_Layer: 0
+  m_Name: _gameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1982394321
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1982394320}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1982394322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1982394320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85c484372119103a08e56289ec34fd55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  maxLives: 3
+  winTargets: 0a000000140000001e000000
+  savesPerStreakTick: 3
 --- !u!1 &1992353734
 GameObject:
   m_ObjectHideFlags: 0
@@ -13107,3 +13166,4 @@ SceneRoots:
   - {fileID: 994435630}
   - {fileID: 1910402732}
   - {fileID: 69764402}
+  - {fileID: 1982394321}

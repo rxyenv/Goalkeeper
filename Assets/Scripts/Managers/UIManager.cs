@@ -2,7 +2,7 @@ using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,31 +11,48 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject livesPanel;
     [SerializeField] private GameObject countdownPanel;
     [SerializeField] private GameObject levelsPanel;
     [SerializeField] private GameObject settingsPanel;
 
     // ── HUD Text ──────────────────────────────────────────────────────────────
     [Header("HUD Text")]
+    [SerializeField] private TextMeshProUGUI score;
+    [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private TextMeshProUGUI winScoreText;
     [SerializeField] private TMP_Text countdownText;
-    [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private TextMeshProUGUI streakText;
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private TextMeshProUGUI winHighScoreText;
+
+    // ── Lives Icons ───────────────────────────────────────────────────────────
+    [Header("Lives Icons")]
+    [SerializeField] private GameObject ball1;
+    [SerializeField] private GameObject ball2;
+    [SerializeField] private GameObject ball3;
 
     // ── Scene References ──────────────────────────────────────────────────────
     [Header("Scene References")]
+    [SerializeField] private GameManager gameManager;
     [SerializeField] private PlayerMovement player;
     [SerializeField] private BallController ballController;
     [SerializeField] private AudioManager audioManager;
     [SerializeField] private SettingsManager settingsManager;
     [SerializeField] private GameObject kicker;
 
+    // ── Screen Flash ──────────────────────────────────────────────────────────
+    [Header("Screen Flash")]
+    [SerializeField] private Image flashImage;
+
+    private static readonly Color SaveColor = new Color(0f, 1f, 0f, 0.45f);
+    private static readonly Color GoalColor = new Color(1f, 0f, 0f, 0.45f);
+
+    private Coroutine _flashCoroutine;
     private Coroutine _fadeOutCoroutine;
     private Coroutine _holdGameCoroutine;
     private Coroutine _resumeCoroutine;
-
-    private int _score;
-
-    private static bool _skipMenu;
-    private static bool _skipLevelPanel;
 
     void Start()
     {
@@ -43,43 +60,71 @@ public class UIManager : MonoBehaviour
 
         pausePanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
+        winPanel?.SetActive(false);
         countdownPanel?.SetActive(false);
         settingsPanel?.SetActive(false);
-        mainMenuPanel?.SetActive(false);
         levelsPanel?.SetActive(false);
+        livesPanel?.SetActive(false);
+        mainMenuPanel?.SetActive(true);
 
-        _score = 0;
-        if (scoreText != null) scoreText.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
 
-        if (!_skipMenu)
+        if (score != null) score.text = "0";
+
+        if (gameManager != null)
         {
-            mainMenuPanel?.SetActive(true);
-            return;
-        }
-
-        _skipMenu = false;
-
-        if (_skipLevelPanel)
-        {
-            _skipLevelPanel = false;
-            Time.timeScale = 1f;
-            ballController?.StartBall();
-        }
-        else
-        {
-            levelsPanel?.SetActive(true);
+            gameManager.OnSaveScored += HandleSaveScored;
+            gameManager.OnStreakMilestone += ShowStreakText;
+            gameManager.OnLiveLost += HandleLiveLost;
+            gameManager.OnWin += HandleWin;
         }
     }
 
-    public void AddScore()
+    // Called by BallController when ball resets after a save
+    public void ScoreIncrease()
     {
-        _score++;
-        if (scoreText != null) scoreText.text = _score.ToString();
+        FlashScreen(SaveColor);
+        gameManager?.RegisterSave();
     }
 
+    // Called by GoalLine when ball crosses the goal line
     public void Losegoal()
     {
-        _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
+        FlashScreen(GoalColor);
+        gameManager?.RegisterGoal();
+    }
+
+    private void HandleSaveScored(int totalSaves)
+    {
+        if (score != null) score.text = totalSaves.ToString();
+    }
+
+    private void HandleLiveLost(int livesRemaining)
+    {
+        if (livesRemaining == 2)
+            ball3?.SetActive(false);
+        else if (livesRemaining == 1)
+            ball2?.SetActive(false);
+        else if (livesRemaining <= 0)
+        {
+            ball1?.SetActive(false);
+            _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
+        }
+    }
+
+    private void HandleWin(int totalSaves, int best)
+    {
+        ballController?.StopBall();
+        if (ballController != null) ballController.enabled = false;
+        if (player != null) player.enabled = false;
+
+        if (winScoreText != null) winScoreText.text = totalSaves + " SAVES";
+        if (winHighScoreText != null) winHighScoreText.text = "BEST: " + best.ToString("N0");
+
+        Time.timeScale = 0f;
+        winPanel?.SetActive(true);
     }
 
     private IEnumerator FadeOutGameObjects()
@@ -93,22 +138,22 @@ public class UIManager : MonoBehaviour
         float timer = 0f;
 
         Vector3[] initialScales = new Vector3[fadeObjects.Length];
-        for (int index = 0; index < fadeObjects.Length; index++)
-            if (fadeObjects[index] != null)
-                initialScales[index] = fadeObjects[index].transform.localScale;
+        for (int i = 0; i < fadeObjects.Length; i++)
+            if (fadeObjects[i] != null)
+                initialScales[i] = fadeObjects[i].transform.localScale;
 
         while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;
-            float scale = 1f - timer / duration;
-            for (int index = 0; index < fadeObjects.Length; index++)
-                if (fadeObjects[index] != null)
-                    fadeObjects[index].transform.localScale = initialScales[index] * scale;
+            float s = 1f - timer / duration;
+            for (int i = 0; i < fadeObjects.Length; i++)
+                if (fadeObjects[i] != null)
+                    fadeObjects[i].transform.localScale = initialScales[i] * s;
             yield return null;
         }
 
-        for (int index = 0; index < fadeObjects.Length; index++)
-            fadeObjects[index]?.SetActive(false);
+        for (int i = 0; i < fadeObjects.Length; i++)
+            fadeObjects[i]?.SetActive(false);
 
         _holdGameCoroutine = StartCoroutine(HoldGame());
     }
@@ -117,12 +162,17 @@ public class UIManager : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         audioManager?.PlayGameOver();
-        GameOver();
+        ShowGameOverPanel();
     }
 
-    private void GameOver()
+    private void ShowGameOverPanel()
     {
+        int totalSaves = gameManager != null ? gameManager.TotalSaves : 0;
+        int best = gameManager != null ? gameManager.BestScore : 0;
+
         Time.timeScale = 0f;
+        if (finalScoreText != null) finalScoreText.text = totalSaves + " SAVES";
+        if (highScoreText != null) highScoreText.text = "BEST: " + best.ToString("N0");
         gameOverPanel?.SetActive(true);
     }
 
@@ -133,20 +183,34 @@ public class UIManager : MonoBehaviour
     public void SetDifficulty(int level)
     {
         PlayerPrefs.SetInt("Level", level);
-        _score = 0;
-        if (scoreText != null) scoreText.text = "0";
+        gameManager?.InitGame();
+
+        winPanel?.SetActive(false);
         gameOverPanel?.SetActive(false);
-        if (player != null) player.enabled = true;
-        if (ballController != null) ballController.enabled = true;
         levelsPanel?.SetActive(false);
+        livesPanel?.SetActive(true);
+
+        if (score != null) score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        if (player != null) player.enabled = true;
         Time.timeScale = 1f;
-        ballController?.StartBall();
+
+        if (ballController != null)
+        {
+            ballController.gameObject.SetActive(true);
+            ballController.enabled = true;
+            ballController.ResetGame();
+        }
     }
 
+    // From main menu "Play" button — no scene reload needed
     public void StartButton()
     {
-        _skipMenu = true;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        mainMenuPanel?.SetActive(false);
+        levelsPanel?.SetActive(true);
     }
 
     public void ShowMenu()
@@ -192,7 +256,24 @@ public class UIManager : MonoBehaviour
 
     public void HomeButton()
     {
-        ResetGameState();
+        if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
+        if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
+
+        gameManager?.InitGame();
+        Time.timeScale = 1f;
+
+        if (score != null) score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        if (ballController != null)
+        {
+            ballController.StopBall();
+            ballController.enabled = true;
+        }
+        if (player != null) player.enabled = true;
+
         if (pausePanel != null && pausePanel.activeSelf)
         {
             pausePanel.transform.DOKill();
@@ -203,6 +284,8 @@ public class UIManager : MonoBehaviour
                     pausePanel.SetActive(false);
                     settingsPanel?.SetActive(false);
                     gameOverPanel?.SetActive(false);
+                    winPanel?.SetActive(false);
+                    livesPanel?.SetActive(false);
                     mainMenuPanel?.SetActive(true);
                 });
         }
@@ -211,30 +294,82 @@ public class UIManager : MonoBehaviour
             pausePanel?.SetActive(false);
             settingsPanel?.SetActive(false);
             gameOverPanel?.SetActive(false);
+            winPanel?.SetActive(false);
+            livesPanel?.SetActive(false);
             mainMenuPanel?.SetActive(true);
         }
-    }
-
-    private void ResetGameState()
-    {
-        Time.timeScale = 1f;
-        if (ballController != null)
-        {
-            ballController.StopBall();
-            ballController.enabled = true;
-        }
-        if (player != null) player.enabled = true;
     }
 
     public void BackButton() => settingsPanel?.SetActive(false);
 
     public void ShowSettings() => settingsPanel?.SetActive(true);
 
+    // In-place restart — no scene reload
     public void Restart()
     {
-        _skipMenu = true;
-        _skipLevelPanel = true;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
+        if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
+
+        gameManager?.InitGame();
+
+        winPanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        pausePanel?.SetActive(false);
+        livesPanel?.SetActive(true);
+
+        if (score != null) score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        if (player != null) player.enabled = true;
+        Time.timeScale = 1f;
+
+        if (ballController != null)
+        {
+            ballController.gameObject.SetActive(true);
+            ballController.enabled = true;
+            ballController.ResetGame();
+        }
+    }
+
+    private void FlashScreen(Color color)
+    {
+        if (flashImage == null) return;
+        if (_flashCoroutine != null) StopCoroutine(_flashCoroutine);
+        _flashCoroutine = StartCoroutine(FlashCoroutine(color));
+    }
+
+    private IEnumerator FlashCoroutine(Color color)
+    {
+        flashImage.color = color;
+        flashImage.gameObject.SetActive(true);
+        float duration = 0.35f;
+        float timer = 0f;
+        while (timer < duration)
+        {
+            timer += Time.unscaledDeltaTime;
+            float a = Mathf.Lerp(color.a, 0f, timer / duration);
+            flashImage.color = new Color(color.r, color.g, color.b, a);
+            yield return null;
+        }
+        flashImage.gameObject.SetActive(false);
+    }
+
+    private void ShowStreakText(int streak)
+    {
+        if (streakText == null) return;
+        streakText.DOKill();
+        streakText.text = streak + " SAVES!";
+        streakText.gameObject.SetActive(true);
+        streakText.transform.DOKill();
+        streakText.transform.localScale = Vector3.one;
+        streakText.transform.DOPunchScale(Vector3.one * 0.4f, 0.3f, 6, 0.5f);
+        streakText.DOFade(1f, 0f)
+            .OnComplete(() =>
+                streakText.DOFade(0f, 0.6f)
+                    .SetDelay(0.8f)
+                    .OnComplete(() => streakText.gameObject.SetActive(false)));
     }
 
     private IEnumerator ResumeCountdown()
@@ -261,10 +396,17 @@ public class UIManager : MonoBehaviour
 
     void OnDestroy()
     {
-        if (_fadeOutCoroutine != null)
-            StopCoroutine(_fadeOutCoroutine);
-        if (_holdGameCoroutine != null)
-            StopCoroutine(_holdGameCoroutine);
+        if (gameManager != null)
+        {
+            gameManager.OnSaveScored -= HandleSaveScored;
+            gameManager.OnStreakMilestone -= ShowStreakText;
+            gameManager.OnLiveLost -= HandleLiveLost;
+            gameManager.OnWin -= HandleWin;
+        }
+
+        if (_flashCoroutine != null) StopCoroutine(_flashCoroutine);
+        if (_fadeOutCoroutine != null) StopCoroutine(_fadeOutCoroutine);
+        if (_holdGameCoroutine != null) StopCoroutine(_holdGameCoroutine);
         if (_resumeCoroutine != null)
         {
             StopCoroutine(_resumeCoroutine);

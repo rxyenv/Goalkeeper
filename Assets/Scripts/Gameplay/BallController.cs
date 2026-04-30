@@ -34,6 +34,7 @@ public class BallController : MonoBehaviour
     private Vector3 startPosition;
     private Vector3 kickerStartPosition;
     private Quaternion kickerStartRotation;
+    private Vector3 kickerStartScale;
     private Coroutine activeCoroutine;
     private bool isGameOver;
     private bool _pendingSave;
@@ -46,6 +47,7 @@ public class BallController : MonoBehaviour
         {
             kickerStartPosition = kicker.transform.position;
             kickerStartRotation = kicker.transform.localRotation;
+            kickerStartScale = kicker.transform.localScale;
         }
         transform.position = startPosition;
         activeCoroutine = StartCoroutine(BallWait());
@@ -54,6 +56,30 @@ public class BallController : MonoBehaviour
     public void StartBall()
     {
         if (isGameOver || activeCoroutine != null) return;
+        activeCoroutine = StartCoroutine(BallWait());
+    }
+
+    public void ResetGame()
+    {
+        if (activeCoroutine != null)
+        {
+            StopCoroutine(activeCoroutine);
+            activeCoroutine = null;
+        }
+        isGameOver = false;
+        isResetting = false;
+        _pendingSave = false;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        transform.position = startPosition;
+        transform.localScale = Vector3.one;
+        if (kicker != null)
+        {
+            kicker.SetActive(true);
+            kicker.transform.position = kickerStartPosition;
+            kicker.transform.localRotation = kickerStartRotation;
+            kicker.transform.localScale = kickerStartScale;
+        }
         activeCoroutine = StartCoroutine(BallWait());
     }
 
@@ -123,7 +149,7 @@ public class BallController : MonoBehaviour
         if (_pendingSave)
         {
             _pendingSave = false;
-            uiManager?.AddScore();
+            uiManager?.ScoreIncrease();
         }
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
