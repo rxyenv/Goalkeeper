@@ -432,7 +432,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 12
   laneDistance: 4
-  uiManager: {fileID: 994435626}
   audioManager: {fileID: 1480932392}
   ballController: {fileID: 1992353736}
 --- !u!4 &103771009 stripped
@@ -5089,33 +5088,16 @@ MonoBehaviour:
   pausePanel: {fileID: 1456552613}
   mainMenuPanel: {fileID: 1607489261}
   gameOverPanel: {fileID: 1742877628}
-  winPanel: {fileID: 255673274}
-  livesPanel: {fileID: 1845235183}
   countdownPanel: {fileID: 2007257317}
   levelsPanel: {fileID: 1292006713}
   settingsPanel: {fileID: 2045669211}
-  score: {fileID: 1698825836}
-  finalScoreText: {fileID: 1516362181}
-  winScoreText: {fileID: 757215283}
   countdownText: {fileID: 412357583}
-  streakText: {fileID: 927963032}
-  highScoreText: {fileID: 743790903}
-  winHighScoreText: {fileID: 1870080211}
-  beginnerWinScore: 500
-  intermediateWinScore: 1000
-  difficultWinScore: 1500
-  basePointsPerSave: 100
-  savesPerMultiplierTick: 3
-  maxMultiplier: 5
-  ball1: {fileID: 976470072}
-  ball2: {fileID: 1980610575}
-  ball3: {fileID: 749111023}
+  scoreText: {fileID: 927963032}
   player: {fileID: 103771008}
   ballController: {fileID: 1992353736}
   audioManager: {fileID: 1480932392}
   settingsManager: {fileID: 2045669212}
   kicker: {fileID: 1162472404}
-  flashImage: {fileID: 371230527}
 --- !u!114 &994435627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12756,17 +12738,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7be3ae5e3431e9542aa40291cbebe3d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseForwardForce: 18
-  baseUpwardForce: 8
+  forwardForce: 18
+  upwardForce: 10
   startingZPos: 78
-  speedIncreasePerSave: 0.4
-  maxSpeedMultiplier: 2.2
-  maxBallHeight: 2.5
   kicker: {fileID: 1162472404}
-  kickerRestPosition: {x: 0, y: 0, z: 0}
-  kickerRestRotationEuler: {x: 0, y: 0, z: 0}
   audioManager: {fileID: 1480932392}
   ballKickAnimator: {fileID: 1162472405}
+  player: {fileID: 103771008}
+  uiManager: {fileID: 994435626}
 --- !u!135 &1992353737
 SphereCollider:
   m_ObjectHideFlags: 0

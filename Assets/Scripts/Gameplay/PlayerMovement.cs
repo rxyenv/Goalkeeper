@@ -11,13 +11,7 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private float laneDistance = 4f;
 
   [Header("References")]
-  [Tooltip("Notified on ball save — increments score and triggers green flash.")]
-  [SerializeField] private UIManager uiManager;
-
-  [Tooltip("Plays the save sound effect on ball contact.")]
   [SerializeField] private AudioManager audioManager;
-
-  [Tooltip("Registers the save (increases speed multiplier) on ball contact.")]
   [SerializeField] private BallController ballController;
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
@@ -76,30 +70,11 @@ public class PlayerMovement : MonoBehaviour
 
   void OnCollisionEnter(Collision collision)
   {
-    if (collision.gameObject.CompareTag("Ball"))
+    if (collision.gameObject.CompareTag("Ball") && !_scoredThisBall)
     {
-      Debug.Log($"[Save] OnCollisionEnter ball. _scoredThisBall={_scoredThisBall}");
-      if (!_scoredThisBall)
-      {
-        _scoredThisBall = true;
-        Debug.Log($"[Save] ScoreIncrease called. totalSaves will increment.");
-        uiManager?.ScoreIncrease();
-        audioManager?.PlaySave();
-        ballController?.RegisterSave();
-      }
-      else
-      {
-        Debug.Log("[Save] Duplicate collision blocked by guard.");
-      }
-    }
-  }
-
-  void OnCollisionExit(Collision collision)
-  {
-    if (collision.gameObject.CompareTag("Ball"))
-    {
-      Debug.Log($"[Save] OnCollisionExit ball. _scoredThisBall was={_scoredThisBall} → resetting to false.");
-      _scoredThisBall = false;
+      _scoredThisBall = true;
+      audioManager?.PlaySave();
+      ballController?.RegisterSave();
     }
   }
 }
