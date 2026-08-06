@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private BallController ballController;
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
-    private const int TotalLanes = 3;
+    private const int TotalLanes = 5;
     private int _currentLane;
     private float _targetX;
     private Rigidbody _rb;
@@ -72,9 +72,9 @@ public class PlayerMovement : MonoBehaviour
   {
     if (collision.gameObject.CompareTag("Ball") && !_scoredThisBall)
     {
-      _scoredThisBall = true;
-      audioManager?.PlaySave();
-      ballController?.RegisterSave();
+        _scoredThisBall = true;
+        audioManager?.PlaySave();
+        ballController?.RegisterSave();
     }
   }
 }
