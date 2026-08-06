@@ -87,6 +87,7 @@ public class UIManager : MonoBehaviour
     {
         FlashScreen(SaveColor);
         gameManager?.RegisterSave();
+        VFXManager.instance.PlayGroundTouchEffect();
     }
 
     // Called by GoalLine when ball crosses the goal line
@@ -94,6 +95,7 @@ public class UIManager : MonoBehaviour
     {
         FlashScreen(GoalColor);
         gameManager?.RegisterGoal();
+        VFXManager.instance.PlayGroundTouchEffect();
     }
 
     private void HandleSaveScored(int totalSaves)
