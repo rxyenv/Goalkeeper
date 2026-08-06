@@ -46,9 +46,9 @@ public class BallController : MonoBehaviour
     private Coroutine activeCoroutine;
     private bool isGameOver;
     private bool _pendingSave;
-    private bool shouldCurve=false;
+    public bool shouldCurve=false;
     private float laneX;
-    private float curveDirection;
+    public float curveDirection;
 
     void Start()
     {
@@ -108,7 +108,8 @@ public class BallController : MonoBehaviour
         curveDirection = Mathf.Sign(laneX);
         if (shouldCurve)
         {
-            direction = new Vector3((laneX+(curveDirection*7f)) - transform.position.x, 0, 27f).normalized;
+            float wideAimX=laneX+(curveDirection*7f);
+            direction = new Vector3(wideAimX - transform.position.x, 0, 27f).normalized;
         }
         else
         {

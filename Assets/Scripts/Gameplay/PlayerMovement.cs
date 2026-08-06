@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Data;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -15,12 +16,15 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private BallController ballController;
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
+    private static readonly int leftDiveHash=Animator.StringToHash("LeftDive");
+    private static readonly int rightDiveDash=Animator.StringToHash("RightDive");
     private const int TotalLanes = 5;
     private int _currentLane;
     private float _targetX;
     private Rigidbody _rb;
     private Animator _animator;
     private bool _scoredThisBall;
+    private bool _isDiving;
 
   void Start()
   {
@@ -46,13 +50,21 @@ public class PlayerMovement : MonoBehaviour
 
   void Update()
   {
+    if(_isDiving)
+      return;
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+      TriggerDive();
+    }
     if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
     {
+      _animator.applyRootMotion=false;
       _currentLane++;
       _animator?.SetTrigger(MoveHash);
     }
     else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
     {
+      _animator.applyRootMotion=false;
       _currentLane--;
       _animator?.SetTrigger(MoveHash);
     }
@@ -62,8 +74,38 @@ public class PlayerMovement : MonoBehaviour
 
   void FixedUpdate()
   {
-    Vector3 targetPosition = new Vector3(_targetX, _rb.position.y, _rb.position.z);
-    _rb.MovePosition(Vector3.MoveTowards(_rb.position, targetPosition, speed * Time.fixedDeltaTime));
+    if (!_isDiving)
+    {
+      Vector3 targetPosition = new Vector3(_targetX, _rb.position.y, _rb.position.z);
+      _rb.MovePosition(Vector3.MoveTowards(_rb.position, targetPosition, speed * Time.fixedDeltaTime));
+    }
+    
+  }
+  public void TriggerDive()
+  {
+    if (ballController.shouldCurve)
+    {
+      _isDiving=true;
+      _animator.applyRootMotion=true;
+      if (ballController.curveDirection == -1)
+      {
+        _animator?.SetTrigger(leftDiveHash);
+      }
+      else if (ballController.curveDirection == 1)
+      {
+        _animator?.SetTrigger(rightDiveDash);
+      }
+    }
+    else
+      return;
+    
+  }
+
+  //this will be called inside animation clip at the end of dive animation
+  public void OnDiveFinished()
+  {
+    _isDiving=false;
+    _animator.applyRootMotion=false;
   }
 
   public void ResetSaveGuard() => _scoredThisBall = false;
@@ -72,9 +114,9 @@ public class PlayerMovement : MonoBehaviour
   {
     if (collision.gameObject.CompareTag("Ball") && !_scoredThisBall)
     {
-        _scoredThisBall = true;
-        audioManager?.PlaySave();
-        ballController?.RegisterSave();
+      _scoredThisBall = true;
+      audioManager?.PlaySave();
+      ballController?.RegisterSave();
     }
   }
 }
