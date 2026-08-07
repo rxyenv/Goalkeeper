@@ -25,6 +25,8 @@ public class PlayerMovement : MonoBehaviour
     private Animator _animator;
     private bool _scoredThisBall;
     private bool _isDiving;
+    private Vector3 pos;
+    private float _initialY;
 
   void Start()
   {
@@ -39,11 +41,12 @@ public class PlayerMovement : MonoBehaviour
     _rb.isKinematic = true;
     _currentLane = TotalLanes / 2;
     _targetX = 0f;
+    _initialY = transform.position.y;
     _animator = GetComponent<Animator>();
     if (_animator == null)
       Debug.LogWarning("Animator not found on " + gameObject.name, this);
     // Snap to center lane immediately so first FixedUpdate has correct target
-    Vector3 pos = _rb.position;
+    pos = _rb.position;
     pos.x = _targetX;
     _rb.position = pos;
   }
@@ -89,10 +92,12 @@ public class PlayerMovement : MonoBehaviour
       _animator.applyRootMotion=true;
       if (ballController.curveDirection == -1)
       {
+        
         _animator?.SetTrigger(leftDiveHash);
       }
       else if (ballController.curveDirection == 1)
       {
+        
         _animator?.SetTrigger(rightDiveDash);
       }
     }
@@ -106,6 +111,9 @@ public class PlayerMovement : MonoBehaviour
   {
     _isDiving=false;
     _animator.applyRootMotion=false;
+    Vector3 currentPos = _rb.position;
+    currentPos.y = _initialY;
+    _rb.position = currentPos;
   }
 
   public void ResetSaveGuard() => _scoredThisBall = false;

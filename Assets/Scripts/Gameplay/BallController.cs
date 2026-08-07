@@ -108,16 +108,19 @@ public class BallController : MonoBehaviour
         curveDirection = Mathf.Sign(laneX);
         if (shouldCurve)
         {
-            float wideAimX=laneX+(curveDirection*7f);
-            direction = new Vector3(wideAimX - transform.position.x, 0, 27f).normalized;
+            float wideAimX=laneX+(curveDirection*5f);
+            direction = new Vector3(wideAimX - transform.position.x, 0, 26f).normalized;
+            rb.AddForce(direction * forwardForce, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * (upwardForce-1f), ForceMode.Impulse);
         }
         else
         {
-            direction = new Vector3(laneX - transform.position.x, 0, 27f).normalized;
+            direction = new Vector3(laneX - transform.position.x, 0, 26f).normalized;
+            rb.AddForce(direction * forwardForce, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * upwardForce, ForceMode.Impulse);
         }
 
-        rb.AddForce(direction * forwardForce, ForceMode.Impulse);
-        rb.AddForce(Vector3.up * upwardForce, ForceMode.Impulse);
+        
         
         
         audioManager?.PlayKick();
@@ -180,7 +183,7 @@ public class BallController : MonoBehaviour
 
     private IEnumerator ResetBall()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.3f);
         shouldCurve = false;
         if (_pendingSave)
         {
