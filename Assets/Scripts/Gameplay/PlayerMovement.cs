@@ -15,9 +15,11 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private AudioManager audioManager;
   [SerializeField] private BallController ballController;
 
-    private static readonly int MoveHash = Animator.StringToHash("Move");
     private static readonly int leftDiveHash=Animator.StringToHash("LeftDive");
     private static readonly int rightDiveDash=Animator.StringToHash("RightDive");
+    private static readonly int headerHash=Animator.StringToHash("Header");
+    private static readonly int leftMoveHash=Animator.StringToHash("LeftMove");
+    private static readonly int rightMoveHash=Animator.StringToHash("RightMove");
     private const int TotalLanes = 5;
     private int _currentLane;
     private float _targetX;
@@ -27,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _isDiving;
     private Vector3 pos;
     private float _initialY;
+    public bool canHeader=false;
 
   void Start()
   {
@@ -63,13 +66,15 @@ public class PlayerMovement : MonoBehaviour
     {
       _animator.applyRootMotion=false;
       _currentLane++;
-      _animator?.SetTrigger(MoveHash);
+      
+      _animator?.SetTrigger(leftMoveHash);
     }
     else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
     {
       _animator.applyRootMotion=false;
       _currentLane--;
-      _animator?.SetTrigger(MoveHash);
+      
+      _animator?.SetTrigger(rightMoveHash);
     }
     _currentLane = Mathf.Clamp(_currentLane, 0, TotalLanes - 1);
     _targetX = (_currentLane - (TotalLanes / 2)) * laneDistance;
@@ -84,6 +89,19 @@ public class PlayerMovement : MonoBehaviour
     }
     
   }
+  public void CanCatch()
+  {
+    
+    if(_currentLane==2 && ballController.laneX == 0f)
+    {
+      canHeader=true;
+      Debug.Log("Checked");
+    }
+    else
+    {
+      canHeader=false;
+    }
+  }
   public void TriggerDive()
   {
     if (ballController.shouldCurve)
@@ -92,12 +110,10 @@ public class PlayerMovement : MonoBehaviour
       _animator.applyRootMotion=true;
       if (ballController.curveDirection == -1)
       {
-        
         _animator?.SetTrigger(leftDiveHash);
       }
       else if (ballController.curveDirection == 1)
       {
-        
         _animator?.SetTrigger(rightDiveDash);
       }
     }
@@ -122,6 +138,10 @@ public class PlayerMovement : MonoBehaviour
   {
     if (collision.gameObject.CompareTag("Ball") && !_scoredThisBall)
     {
+      if (canHeader)
+      {
+        _animator?.SetTrigger(headerHash);
+      }
       _scoredThisBall = true;
       audioManager?.PlaySave();
       ballController?.RegisterSave();
