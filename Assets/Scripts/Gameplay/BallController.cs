@@ -102,8 +102,6 @@ public class BallController : MonoBehaviour
     {
         if (isGameOver)
             return;
-
-        VFXManager.instance.PlayTrailEffect();
         player?.ResetSaveGuard();
         laneX = lanes[Random.Range(0, lanes.Length)];
         shouldCurve = Mathf.Abs(laneX) == 8f;
