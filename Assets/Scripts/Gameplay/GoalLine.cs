@@ -12,7 +12,6 @@ public class GoalLine : MonoBehaviour
 
   [Tooltip("Registers the goal (resets streak/speed) and triggers ball reset.")]
   [SerializeField] private BallController ballController;
-  [SerializeField] private CrowdController crowdController;
   [SerializeField] private Transform mainCamera;
   private Vector3 cameraPosition;
   void Start()
@@ -24,7 +23,6 @@ public class GoalLine : MonoBehaviour
   {
     if (other.CompareTag("Ball"))
     {
-      crowdController?.PlaySad();
       Debug.Log("GOAL!");
       StartCoroutine(CameraShake());
       uiManager?.Losegoal();

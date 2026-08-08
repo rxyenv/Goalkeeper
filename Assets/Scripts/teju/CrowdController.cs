@@ -9,11 +9,4 @@ public class CrowdController : MonoBehaviour
       crowdAnimators[i].SetTrigger("cheer");
     }
   }
-  public void PlaySad()
-  {
-    for (int i = 0; i < crowdAnimators.Length; i++)
-    {
-      crowdAnimators[i].SetTrigger("sad");
-    }
-  }
 }
