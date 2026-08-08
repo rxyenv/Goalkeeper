@@ -309,7 +309,7 @@ public class UIManager : MonoBehaviour
   public void ShowSettings() => settingsPanel?.SetActive(true);
 
   // In-place restart — no scene reload
-  public void Restart()
+  public void NewGame()
   {
     if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
     if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
