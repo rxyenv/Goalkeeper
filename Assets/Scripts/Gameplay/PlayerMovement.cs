@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Data;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -15,12 +16,17 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private BallController ballController;
 
     private static readonly int MoveHash = Animator.StringToHash("Move");
-    private const int TotalLanes = 3;
+    private static readonly int leftDiveHash=Animator.StringToHash("LeftDive");
+    private static readonly int rightDiveDash=Animator.StringToHash("RightDive");
+    private const int TotalLanes = 5;
     private int _currentLane;
     private float _targetX;
     private Rigidbody _rb;
     private Animator _animator;
     private bool _scoredThisBall;
+    private bool _isDiving;
+    private Vector3 pos;
+    private float _initialY;
 
   void Start()
   {
@@ -35,24 +41,33 @@ public class PlayerMovement : MonoBehaviour
     _rb.isKinematic = true;
     _currentLane = TotalLanes / 2;
     _targetX = 0f;
+    _initialY = transform.position.y;
     _animator = GetComponent<Animator>();
     if (_animator == null)
       Debug.LogWarning("Animator not found on " + gameObject.name, this);
     // Snap to center lane immediately so first FixedUpdate has correct target
-    Vector3 pos = _rb.position;
+    pos = _rb.position;
     pos.x = _targetX;
     _rb.position = pos;
   }
 
   void Update()
   {
+    if(_isDiving)
+      return;
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+      TriggerDive();
+    }
     if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
     {
+      _animator.applyRootMotion=false;
       _currentLane++;
       _animator?.SetTrigger(MoveHash);
     }
     else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
     {
+      _animator.applyRootMotion=false;
       _currentLane--;
       _animator?.SetTrigger(MoveHash);
     }
@@ -62,8 +77,43 @@ public class PlayerMovement : MonoBehaviour
 
   void FixedUpdate()
   {
-    Vector3 targetPosition = new Vector3(_targetX, _rb.position.y, _rb.position.z);
-    _rb.MovePosition(Vector3.MoveTowards(_rb.position, targetPosition, speed * Time.fixedDeltaTime));
+    if (!_isDiving)
+    {
+      Vector3 targetPosition = new Vector3(_targetX, _rb.position.y, _rb.position.z);
+      _rb.MovePosition(Vector3.MoveTowards(_rb.position, targetPosition, speed * Time.fixedDeltaTime));
+    }
+    
+  }
+  public void TriggerDive()
+  {
+    if (ballController.shouldCurve)
+    {
+      _isDiving=true;
+      _animator.applyRootMotion=true;
+      if (ballController.curveDirection == -1)
+      {
+        
+        _animator?.SetTrigger(leftDiveHash);
+      }
+      else if (ballController.curveDirection == 1)
+      {
+        
+        _animator?.SetTrigger(rightDiveDash);
+      }
+    }
+    else
+      return;
+    
+  }
+
+  //this will be called inside animation clip at the end of dive animation
+  public void OnDiveFinished()
+  {
+    _isDiving=false;
+    _animator.applyRootMotion=false;
+    Vector3 currentPos = _rb.position;
+    currentPos.y = _initialY;
+    _rb.position = currentPos;
   }
 
   public void ResetSaveGuard() => _scoredThisBall = false;

@@ -13,6 +13,9 @@ public class BallController : MonoBehaviour
     private float startingZPos = 78f;
 
     [SerializeField]
+    private float curveForce = 14f;
+
+    [SerializeField]
     private GameObject kicker;
 
     [SerializeField]
@@ -27,17 +30,25 @@ public class BallController : MonoBehaviour
     [SerializeField]
     private UIManager uiManager;
 
+    //[SerializeField]
+    //private BackGroundTeamManager backGroundTeamManager;
+
+
     private static readonly int KickHash = Animator.StringToHash("Kick");
-    private readonly float[] lanes = { -4f, 0f, 4f };
+    private readonly float[] lanes = { -8f, -4f ,0 ,4f ,8f };
     private Rigidbody rb;
     private bool isResetting;
     private Vector3 startPosition;
     private Vector3 kickerStartPosition;
     private Quaternion kickerStartRotation;
     private Vector3 kickerStartScale;
+    private Vector3 direction;
     private Coroutine activeCoroutine;
     private bool isGameOver;
     private bool _pendingSave;
+    public bool shouldCurve=false;
+    private float laneX;
+    public float curveDirection;
 
     void Start()
     {
@@ -92,11 +103,34 @@ public class BallController : MonoBehaviour
         if (isGameOver)
             return;
         player?.ResetSaveGuard();
-        float laneX = lanes[Random.Range(0, lanes.Length)];
-        Vector3 direction = new Vector3(laneX - transform.position.x, 0, 30f).normalized;
-        rb.AddForce(direction * forwardForce, ForceMode.Impulse);
-        rb.AddForce(Vector3.up * upwardForce, ForceMode.Impulse);
+        laneX = lanes[Random.Range(0, lanes.Length)];
+        shouldCurve = Mathf.Abs(laneX) == 8f;
+        curveDirection = Mathf.Sign(laneX);
+        if (shouldCurve)
+        {
+            float wideAimX=laneX+(curveDirection*5f);
+            direction = new Vector3(wideAimX - transform.position.x, 0, 26f).normalized;
+            rb.AddForce(direction * forwardForce, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * (upwardForce-1f), ForceMode.Impulse);
+        }
+        else
+        {
+            direction = new Vector3(laneX - transform.position.x, 0, 26f).normalized;
+            rb.AddForce(direction * forwardForce, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * upwardForce, ForceMode.Impulse);
+        }
+
+        
+        
+        
         audioManager?.PlayKick();
+    }
+    private void FixedUpdate()
+    {
+        if (shouldCurve)
+        {
+            rb.AddForce(Vector3.right * -curveDirection * curveForce, ForceMode.Force);
+        }
     }
 
     public void StopBall()
@@ -130,7 +164,11 @@ public class BallController : MonoBehaviour
         if (isResetting)
             return;
         if (collision.gameObject.CompareTag("Player"))
+        {
             TriggerReset();
+            //backGroundTeamManager.PlayWin();
+        }
+
     }
 
     public void TriggerReset()
@@ -145,7 +183,8 @@ public class BallController : MonoBehaviour
 
     private IEnumerator ResetBall()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(1.3f);
+        shouldCurve = false;
         if (_pendingSave)
         {
             _pendingSave = false;
