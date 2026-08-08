@@ -46,8 +46,8 @@ public class BallController : MonoBehaviour
     private Coroutine activeCoroutine;
     private bool isGameOver;
     private bool _pendingSave;
-    public bool shouldCurve=false;
-    private float laneX;
+    public  bool shouldCurve=false;
+    public float laneX;
     public float curveDirection;
 
     void Start()
@@ -100,10 +100,14 @@ public class BallController : MonoBehaviour
 
     void Shoot()
     {
+
         if (isGameOver)
             return;
+        rb.useGravity=true;
+        VFXManager.instance.PlayTrailEffect();
         player?.ResetSaveGuard();
         laneX = lanes[Random.Range(0, lanes.Length)];
+        player.CanCatch();
         shouldCurve = Mathf.Abs(laneX) == 8f;
         curveDirection = Mathf.Sign(laneX);
         if (shouldCurve)
@@ -165,6 +169,14 @@ public class BallController : MonoBehaviour
             return;
         if (collision.gameObject.CompareTag("Player"))
         {
+            if (!player.canHeader)
+            {
+                rb.AddForce(direction*-5f,ForceMode.Impulse);
+            }
+            else
+            {
+                rb.AddForce(direction*-10f,ForceMode.Impulse);
+            }
             TriggerReset();
             //backGroundTeamManager.PlayWin();
         }
@@ -183,8 +195,8 @@ public class BallController : MonoBehaviour
 
     private IEnumerator ResetBall()
     {
-        yield return new WaitForSeconds(1.3f);
         shouldCurve = false;
+        yield return new WaitForSeconds(1.3f);
         if (_pendingSave)
         {
             _pendingSave = false;
