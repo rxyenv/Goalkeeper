@@ -26,7 +26,10 @@ public class VFXManager : MonoBehaviour
         var ballController = FindAnyObjectByType<BallController>();
 
         trailInstance = Instantiate(trailVfx, ballController.transform);
+        trailInstance.transform.localScale = Vector3.one * 1.5f;
+
         ballsheildInstance = Instantiate(ballSheildVfx, ballController.transform);
+        ballsheildInstance.transform.localScale = Vector3.one * 0.3f;
     }
 
     public void PlayGroundTouchEffect()
