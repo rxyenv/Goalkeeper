@@ -5,6 +5,9 @@ public class UmpireAnims : MonoBehaviour
 {
     [SerializeField] private AudioClip startWhistleClip;
     [SerializeField] private AudioClip ballMissClip;
+    [SerializeField] private BallController ballController;
+    [SerializeField]private PlayerMovement playerMovement;
+    [SerializeField] private GoalLine goalLine;
     private AudioSource audioSource;
     private Animator umpireAnimator;
 
@@ -12,15 +15,16 @@ public class UmpireAnims : MonoBehaviour
     {
         umpireAnimator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        //sub for ball controller when ball kicked
-        //sub for ball controller when ball stopped
+        ballController.onBallKick+=HandlePlayerKick;
+        goalLine.onBallMiss+=HandleBallMiss;
+        playerMovement.onBallStop+=HandleBallStopped;
     }
 
     private void HandlePlayerKick()
     {
         umpireAnimator.SetTrigger("StartWhistle");
         StartCoroutine(PlayDelayedSFX(startWhistleClip));
-        //unsub the ball controller
+        ballController.onBallKick-=HandlePlayerKick;
     }
 
     private IEnumerator PlayDelayedSFX(AudioClip clip, float delay = 0.4f)
@@ -32,28 +36,22 @@ public class UmpireAnims : MonoBehaviour
     private void HandleBallStopped()
     {
         umpireAnimator.SetTrigger("SafeSignal");
+        VFXManager.instance.PlayGroundTouchEffect();
     }
 
     private void HandleBallMiss()
     {
         umpireAnimator.SetTrigger("GoalWhistle");
+        VFXManager.instance.PlayGroundTouchEffect();
         StartCoroutine(PlayDelayedSFX(ballMissClip, 0.5f));
+        
     }
-
-
-    private void Update()
+    void OnDestroy()
     {
-        if(Input.GetKeyDown(KeyCode.S))
-        {
-            HandlePlayerKick();
-        }
-        if(Input.GetKeyDown(KeyCode.D))
-        {
-            HandleBallStopped();
-        }
-        if( Input.GetKeyDown(KeyCode.W))
-        {
-            HandleBallMiss();
-        }
+        goalLine.onBallMiss-=HandleBallMiss;
+        playerMovement.onBallStop-=HandleBallStopped;
     }
+
+
+
 }

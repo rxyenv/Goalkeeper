@@ -5,8 +5,6 @@ public class VFXManager : MonoBehaviour
     [SerializeField] private GameObject trailVfx;
     [SerializeField] private GameObject ballSheildVfx;
 
-    private GameObject trailInstance;
-    private GameObject ballsheildInstance;
 
     public static VFXManager instance;
 
@@ -19,22 +17,19 @@ public class VFXManager : MonoBehaviour
         }
 
         instance = this;
+        trailVfx.SetActive(false);
+        ballSheildVfx.SetActive(false);
     }
 
     public void PlayTrailEffect()
     {
-        var ballController = FindAnyObjectByType<BallController>();
-
-        trailInstance = Instantiate(trailVfx, ballController.transform);
-        trailInstance.transform.localScale = Vector3.one * 1.5f;
-
-        ballsheildInstance = Instantiate(ballSheildVfx, ballController.transform);
-        ballsheildInstance.transform.localScale = Vector3.one * 0.3f;
+        trailVfx.SetActive(true);
+        ballSheildVfx.SetActive(true);
     }
 
     public void PlayGroundTouchEffect()
     {
-        Destroy(trailInstance);
-        Destroy(ballsheildInstance);
+       trailVfx.SetActive(false);
+       ballSheildVfx.SetActive(false);
     }
 }
