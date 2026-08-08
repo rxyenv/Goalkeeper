@@ -7870,7 +7870,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1480932393}
-  kickSound: {fileID: 8300000, guid: 0d934aae5f7715f44808c4f7c5acf731, type: 3}
+  kickSounds:
+  - {fileID: 8300000, guid: 437f1814dde90154e80ab7eec1761a01, type: 3}
+  - {fileID: 8300000, guid: bdb524b2bcdd69f4492a203a5d37bff2, type: 3}
+  - {fileID: 8300000, guid: 16edfaa1c5b92c148b2bef94c38139b0, type: 3}
+  - {fileID: 8300000, guid: bf61abd4b30e7d040be1af38c0145fa5, type: 3}
+  - {fileID: 8300000, guid: a859d4cdf5f5ea04fbafa8bcc73a2baa, type: 3}
+  - {fileID: 8300000, guid: 9c11749dd8f424141afa028a852c87eb, type: 3}
+  - {fileID: 8300000, guid: 7f5cf08efbf81fa41a7efedbe1ab4c77, type: 3}
+  - {fileID: 8300000, guid: e9ec5ad6743da8d4f939f5235bf711d6, type: 3}
+  - {fileID: 8300000, guid: 6ad68c3a85d43aa45b3ad05dbbfd6348, type: 3}
+  - {fileID: 8300000, guid: fede9b04c3effcf44bd6e1e93c25b92b, type: 3}
+  - {fileID: 8300000, guid: 9a457e09f1ee8554bb38c48168d81e53, type: 3}
+  - {fileID: 8300000, guid: 704882bc0561b9540bd9c2ea54759669, type: 3}
+  - {fileID: 8300000, guid: 235a61daefde93b45bedac9c9172222f, type: 3}
   saveSound: {fileID: 8300000, guid: 02a087f5f83c3424a8eda4d3c86bc1fc, type: 3}
   goalSound: {fileID: 8300000, guid: 1fd73078b44ccd840b3f8ef292cf3a13, type: 3}
   gameOverSound: {fileID: 8300000, guid: e597c8accd5f8144f99a712f56a3ca6e, type: 3}
