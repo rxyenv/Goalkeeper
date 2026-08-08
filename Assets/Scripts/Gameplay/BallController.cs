@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -30,8 +31,7 @@ public class BallController : MonoBehaviour
     [SerializeField]
     private UIManager uiManager;
 
-    //[SerializeField]
-    //private BackGroundTeamManager backGroundTeamManager;
+    
 
 
     private static readonly int KickHash = Animator.StringToHash("Kick");
@@ -49,6 +49,8 @@ public class BallController : MonoBehaviour
     public  bool shouldCurve=false;
     public float laneX;
     public float curveDirection;
+    public Action onBallKick;
+    
 
     void Start()
     {
@@ -103,10 +105,11 @@ public class BallController : MonoBehaviour
 
         if (isGameOver)
             return;
+        onBallKick?.Invoke();
         rb.useGravity=true;
         VFXManager.instance.PlayTrailEffect();
         player?.ResetSaveGuard();
-        laneX = lanes[Random.Range(0, lanes.Length)];
+        laneX = lanes[UnityEngine.Random.Range(0, lanes.Length)];
         player.CanCatch();
         shouldCurve = Mathf.Abs(laneX) == 8f;
         curveDirection = Mathf.Sign(laneX);
@@ -115,7 +118,7 @@ public class BallController : MonoBehaviour
             float wideAimX=laneX+(curveDirection*5f);
             direction = new Vector3(wideAimX - transform.position.x, 0, 26f).normalized;
             rb.AddForce(direction * forwardForce, ForceMode.Impulse);
-            rb.AddForce(Vector3.up * (upwardForce-1f), ForceMode.Impulse);
+            rb.AddForce(Vector3.up * (upwardForce-2f), ForceMode.Impulse);
         }
         else
         {
@@ -178,7 +181,7 @@ public class BallController : MonoBehaviour
                 rb.AddForce(direction*-10f,ForceMode.Impulse);
             }
             TriggerReset();
-            //backGroundTeamManager.PlayWin();
+            
         }
 
     }

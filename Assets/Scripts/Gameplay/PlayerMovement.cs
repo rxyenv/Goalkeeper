@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Data;
 using UnityEngine;
@@ -14,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
   [Header("References")]
   [SerializeField] private AudioManager audioManager;
   [SerializeField] private BallController ballController;
+  [SerializeField] private CrowdController crowdController;
+  [SerializeField] private BackGroundTeamManager backGroundTeamManager;
 
     private static readonly int leftDiveHash=Animator.StringToHash("LeftDive");
     private static readonly int rightDiveDash=Animator.StringToHash("RightDive");
@@ -30,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 pos;
     private float _initialY;
     public bool canHeader=false;
+    public Action onBallStop;
 
   void Start()
   {
@@ -142,6 +146,9 @@ public class PlayerMovement : MonoBehaviour
       {
         _animator?.SetTrigger(headerHash);
       }
+      onBallStop?.Invoke();
+      backGroundTeamManager.PlayWin();
+      crowdController.PlayCheer();
       _scoredThisBall = true;
       audioManager?.PlaySave();
       ballController?.RegisterSave();
