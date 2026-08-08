@@ -8,7 +8,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("Sound Clips")]
     [Tooltip("Played when the kicker strikes the ball.")]
-    [SerializeField] private AudioClip kickSound;
+    [SerializeField] private AudioClip[] kickSounds;
 
     [Tooltip("Played when the goalkeeper successfully saves a shot.")]
     [SerializeField] private AudioClip saveSound;
@@ -27,9 +27,10 @@ public class AudioManager : MonoBehaviour
         audioSource.clip = clip;
         audioSource.Play();
     }
-
-    public void PlayKick() => Play(kickSound);
+    
+    public void PlayKick() => Play(kickSounds[Random.Range(0, kickSounds.Length)]);
     public void PlaySave() => Play(saveSound);
     public void PlayGoal() => Play(goalSound);
     public void PlayGameOver() => Play(gameOverSound);
+
 }
