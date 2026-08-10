@@ -12,19 +12,47 @@ public class GameManager : MonoBehaviour
     [Header("Scoring")]
     [SerializeField] private int savesPerStreakTick = 3;
 
+
+
     public int Lives { get; private set; }
     public int TotalSaves { get; private set; }
     public int SaveStreak { get; private set; }
     public int BestScore { get; private set; }
+    public Action OnGameStarted;
+    public bool IsGameStarted = false;
 
     public event Action<int> OnSaveScored;
     public event Action<int> OnStreakMilestone;
     public event Action<int> OnLiveLost;
     public event Action<int, int> OnWin;
 
+    public static GameManager instance;
     void Awake()
     {
+        if(instance != null && instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+
         InitGame();
+        
+    }
+
+    private void Start()
+    {
+        OnGameStarted += HandleGameStart;
+        AudioManager.instance.PlayBgm();
+    }
+
+    public void HandleGameStart()
+    {
+        IsGameStarted = true;
+    }
+    private void OnDestroy()
+    {
+        OnGameStarted = HandleGameStart;
     }
 
     public void InitGame()
