@@ -42,12 +42,14 @@ public class GoalLine : MonoBehaviour
   IEnumerator CameraShake()
   {
     Vector3 originalPosition = mainCamera.position;
-    mainCamera.position = originalPosition + new Vector3(0.15f, 0.10f, 0);
-    yield return new WaitForSeconds(0.05f);
-    mainCamera.position = originalPosition + new Vector3(-0.15f, -0.10f, 0);
-    yield return new WaitForSeconds(0.05f);
-    mainCamera.position = originalPosition + new Vector3(0.10f, -0.08f, 0);
-    yield return new WaitForSeconds(0.05f);
+    mainCamera.position = originalPosition + new Vector3(0.30f, 0.20f, 0);
+    yield return new WaitForSeconds(0.04f);
+    mainCamera.position = originalPosition + new Vector3(-0.30f, -0.20f, 0);
+    yield return new WaitForSeconds(0.04f);
+    mainCamera.position = originalPosition + new Vector3(0.22f, -0.15f, 0);
+    yield return new WaitForSeconds(0.04f);
+    mainCamera.position = originalPosition + new Vector3(-0.18f, 0.12f, 0);
+    yield return new WaitForSeconds(0.04f);
     mainCamera.position = originalPosition;
   }
 }
