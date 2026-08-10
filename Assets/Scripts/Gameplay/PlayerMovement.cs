@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Data;
+using Unity.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -32,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _isDiving;
     private Vector3 pos;
     private float _initialY;
+    private Quaternion _initialYRotation;
     public bool canHeader=false;
     public Action onBallStop;
 
@@ -49,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
     _currentLane = TotalLanes / 2;
     _targetX = 0f;
     _initialY = transform.position.y;
+    _initialYRotation=transform.rotation;
     _animator = GetComponent<Animator>();
     if (_animator == null)
       Debug.LogWarning("Animator not found on " + gameObject.name, this);
@@ -132,8 +135,10 @@ public class PlayerMovement : MonoBehaviour
     _isDiving=false;
     _animator.applyRootMotion=false;
     Vector3 currentPos = _rb.position;
+    Quaternion currentRot= _rb.rotation;
     currentPos.y = _initialY;
     _rb.position = currentPos;
+    _rb.rotation=_initialYRotation;
   }
 
   public void ResetSaveGuard() => _scoredThisBall = false;
