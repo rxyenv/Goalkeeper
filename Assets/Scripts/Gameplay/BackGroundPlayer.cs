@@ -4,9 +4,10 @@ using System.Collections;
 public class BackGroundPlayer : MonoBehaviour
 {
     Animator animator;
-    Vector3 startPosition;
 
     [SerializeField] private int totalIdleAnimations = 4;
+    [SerializeField] private int totalWinAnimations=4;
+    [SerializeField] private int totalLoseAnimations=4;
     [SerializeField] private float moveDistance = 2f;
     [SerializeField] private float moveSpeed = 2f;
 
@@ -16,7 +17,6 @@ public class BackGroundPlayer : MonoBehaviour
     private void Start()
     {
         animator = GetComponent<Animator>();
-        startPosition = transform.position;
 
         StartCoroutine(IdleRoutine());
     }
@@ -36,28 +36,12 @@ public class BackGroundPlayer : MonoBehaviour
             
             yield return new WaitForSeconds(animationLength);
 
-            yield return Walk();
+           
 
 
         }
     }
-    IEnumerator Walk()
-    {
-        Vector3 RandomOffSet = new Vector3(0f,0f,Random.Range(0, moveDistance));
-
-        Vector3 targetPos = startPosition+RandomOffSet;
-        animator.SetBool("IsWalking",true);
-
-        while (Vector3.Distance(transform.position, targetPos) > 0.05f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position,targetPos,moveSpeed*Time.deltaTime);
-
-
-            yield return null;
-        }
-        animator.SetBool("IsWalking",false);
-
-    }
+    
 
     private void SetRandomIdle()
     {
@@ -68,12 +52,16 @@ public class BackGroundPlayer : MonoBehaviour
     public void PlayWinAnimation()
     {
         StopCoroutine(IdleRoutine());
+        int randomNum = Random.Range(0, totalWinAnimations);
         animator.SetTrigger("Win");
+        animator.SetFloat("WinIndex", randomNum);
     }
 
     public void PlayLoseAnimation()
     {
         StopCoroutine(IdleRoutine());
+        int randomNum = Random.Range(0, totalLoseAnimations);
         animator.SetTrigger("Lose");
+        animator.SetFloat("LoseIndex", randomNum);
     }
 }

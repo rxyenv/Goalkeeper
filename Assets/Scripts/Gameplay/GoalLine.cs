@@ -12,8 +12,10 @@ public class GoalLine : MonoBehaviour
   [SerializeField] private AudioManager audioManager;
 
   [Tooltip("Registers the goal (resets streak/speed) and triggers ball reset.")]
+  private static readonly int victoryHash=Animator.StringToHash("Victory");
   [SerializeField] private BallController ballController;
   [SerializeField] private BackGroundTeamManager backGroundTeamManager;
+  [SerializeField]private Animator kickerAnimator;
   [SerializeField] private Transform mainCamera;
   public Action onBallMiss;
   private Vector3 cameraPosition;
@@ -26,6 +28,7 @@ public class GoalLine : MonoBehaviour
   {
     if (other.CompareTag("Ball"))
     {
+      kickerAnimator?.SetTrigger(victoryHash);
       onBallMiss?.Invoke();
       backGroundTeamManager.PlayLose();
       Debug.Log("GOAL!");
