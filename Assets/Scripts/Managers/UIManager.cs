@@ -219,7 +219,9 @@ public class UIManager : MonoBehaviour
   {
     mainMenuPanel?.SetActive(false);
     levelsPanel?.SetActive(true);
-  }
+        pausePanel?.SetActive(false);
+        livesPanel.SetActive(false);
+    }
 
   public void QuitButton() => Application.Quit();
 
@@ -248,7 +250,8 @@ public class UIManager : MonoBehaviour
           .OnComplete(() =>
           {
             pausePanel.SetActive(false);
-            StartCoroutine(ResumeCountdown());
+              settingsPanel.SetActive(false);   
+              StartCoroutine(ResumeCountdown());
           });
     }
     else
@@ -263,7 +266,7 @@ public class UIManager : MonoBehaviour
     if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
 
     gameManager?.InitGame();
-    Time.timeScale = 1f;
+   
 
     if (score != null) score.text = "0";
     ball1?.SetActive(true);
