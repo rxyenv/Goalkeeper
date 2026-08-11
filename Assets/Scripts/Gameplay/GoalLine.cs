@@ -14,6 +14,8 @@ public class GoalLine : MonoBehaviour
   [SerializeField] private BackGroundTeamManager backGroundTeamManager;
   [SerializeField]private Animator kickerAnimator;
   [SerializeField] private Transform mainCamera;
+  [SerializeField] private CrowdController crowdController;
+  
   public Action onBallMiss;
 
 
@@ -24,6 +26,7 @@ public class GoalLine : MonoBehaviour
       kickerAnimator?.SetTrigger(victoryHash);
       onBallMiss?.Invoke();
       backGroundTeamManager.PlayLose();
+      crowdController.PlaySad();
       StartCoroutine(CameraShake());
       uiManager?.Losegoal();
       AudioManager.instance.PlayGoal();

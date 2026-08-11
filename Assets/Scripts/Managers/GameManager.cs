@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int maxLives = 3;
 
     [Header("Win Targets")]
-    [SerializeField] private int[] winTargets = { 10, 20, 30 };
+    public int[] winTargets = { 10, 20, 30 };
     [Header("Scoring")]
     [SerializeField] private int savesPerStreakTick = 3;
 
