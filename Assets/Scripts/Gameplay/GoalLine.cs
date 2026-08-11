@@ -8,9 +8,6 @@ public class GoalLine : MonoBehaviour
   [Tooltip("Notified when a goal is conceded — decrements lives and triggers flash.")]
   [SerializeField] private UIManager uiManager;
 
-  [Tooltip("Plays the goal sound effect.")]
-  [SerializeField] private AudioManager audioManager;
-
   [Tooltip("Registers the goal (resets streak/speed) and triggers ball reset.")]
   private static readonly int victoryHash=Animator.StringToHash("Victory");
   [SerializeField] private BallController ballController;
@@ -18,11 +15,7 @@ public class GoalLine : MonoBehaviour
   [SerializeField]private Animator kickerAnimator;
   [SerializeField] private Transform mainCamera;
   public Action onBallMiss;
-  private Vector3 cameraPosition;
-  void Start()
-  {
-    cameraPosition = mainCamera.localPosition;
-  }
+
 
   void OnTriggerEnter(Collider other)
   {
@@ -31,10 +24,10 @@ public class GoalLine : MonoBehaviour
       kickerAnimator?.SetTrigger(victoryHash);
       onBallMiss?.Invoke();
       backGroundTeamManager.PlayLose();
-      Debug.Log("GOAL!");
       StartCoroutine(CameraShake());
       uiManager?.Losegoal();
-      audioManager?.PlayGoal();
+      AudioManager.instance.PlayGoal();
+      AudioManager.instance.PlayBallNetHit();
       ballController?.RegisterGoal();
       ballController?.TriggerReset();
     }

@@ -4702,7 +4702,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 12
   laneDistance: 4
-  audioManager: {fileID: 1480932392}
   ballController: {fileID: 1399113277}
   crowdController: {fileID: 1328105440}
   backGroundTeamManager: {fileID: 1434072544}
@@ -7745,8 +7744,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &128167390
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -15632,8 +15631,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &282909491
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18914,8 +18913,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &345357853
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -42027,8 +42026,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &893610646
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -42848,9 +42847,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiManager: {fileID: 994435626}
-  audioManager: {fileID: 1480932392}
   ballController: {fileID: 1399113277}
   backGroundTeamManager: {fileID: 1434072544}
+  kickerAnimator: {fileID: 1162472405}
   mainCamera: {fileID: 764360938}
 --- !u!1001 &914428531
 PrefabInstance:
@@ -48315,8 +48314,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &984367591
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -48539,6 +48538,7 @@ MonoBehaviour:
   countdownPanel: {fileID: 2007257317}
   levelsPanel: {fileID: 1292006713}
   settingsPanel: {fileID: 2045669211}
+  settingsPanelFromGame: {fileID: 0}
   score: {fileID: 1698825836}
   finalScoreText: {fileID: 1516362181}
   winScoreText: {fileID: 757215283}
@@ -48552,7 +48552,6 @@ MonoBehaviour:
   gameManager: {fileID: 1982394322}
   player: {fileID: 103771008}
   ballController: {fileID: 0}
-  audioManager: {fileID: 1480932392}
   settingsManager: {fileID: 2045669212}
   kicker: {fileID: 1162472404}
   flashImage: {fileID: 371230527}
@@ -54794,8 +54793,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &1111482793
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -60744,8 +60743,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &1217140475
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -68406,7 +68405,6 @@ MonoBehaviour:
   startingZPos: 76
   curveForce: 20
   kicker: {fileID: 1162472404}
-  audioManager: {fileID: 1480932392}
   ballKickAnimator: {fileID: 1162472405}
   player: {fileID: 103771008}
   uiManager: {fileID: 994435626}
@@ -91589,8 +91587,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackGroundPlayer
   totalIdleAnimations: 4
-  moveDistance: 2
-  moveSpeed: 2
+  totalWinAnimations: 4
+  totalLoseAnimations: 4
 --- !u!54 &1909463974
 Rigidbody:
   m_ObjectHideFlags: 0
