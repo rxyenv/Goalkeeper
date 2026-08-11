@@ -110,7 +110,15 @@ public class UIManager : MonoBehaviour
         else if (livesRemaining <= 0)
         {
             ball1?.SetActive(false);
-            _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
+            ballController?.StopBall();
+            if (ballController != null) ballController.enabled = false;
+            if (player != null) player.enabled = false;
+            _holdGameCoroutine = StartCoroutine(HoldGame());
+            ballController.transform.DOScale(Vector3.zero, 1f).OnComplete(() =>
+            {
+                ballController.gameObject.SetActive(false);
+            });
+            //_fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
         }
     }
 
@@ -134,7 +142,7 @@ public class UIManager : MonoBehaviour
         if (ballController != null) ballController.enabled = false;
         if (player != null) player.enabled = false;
 
-        GameObject[] fadeObjects = { ballController?.gameObject };
+        GameObject[] fadeObjects = null;
         float duration = 1f;
         float timer = 0f;
 
@@ -169,11 +177,11 @@ public class UIManager : MonoBehaviour
     private void ShowGameOverPanel()
     {
         int totalSaves = gameManager != null ? gameManager.TotalSaves : 0;
-        int best = gameManager != null ? gameManager.BestScore : 0;
+        int index = PlayerPrefs.GetInt("Level", 0);
         livesPanel.SetActive(false);
         Time.timeScale = 0f;
         if (finalScoreText != null) finalScoreText.text = totalSaves + " SAVES";
-        if (highScoreText != null) highScoreText.text = "BEST: " + best.ToString("N0");
+        if (highScoreText != null) highScoreText.text = "TARGET: " + gameManager.winTargets[index].ToString("N0");
         gameOverPanel?.SetActive(true);
     }
 
@@ -271,7 +279,8 @@ public class UIManager : MonoBehaviour
 
         AudioManager.instance.PlayBgm();
         gameManager?.InitGame();
-
+        settingsPanel.SetActive(false);
+        settingsPanelFromGame.SetActive(false);
 
         if (score != null) score.text = "0";
         ball1?.SetActive(true);
@@ -317,12 +326,12 @@ public class UIManager : MonoBehaviour
         settingsPanelFromGame?.SetActive(false);
         Time.timeScale = 1f;
         AudioManager.instance.EnableSource();
+        StartCoroutine(ResumeCountdown());
     }
 
     public void ShowSettings() 
     {
         settingsPanel?.SetActive(true);
-        AudioManager.instance.DisableSource();
     }
     public void ShowSettingsFromGame()
     {

@@ -80,6 +80,20 @@ public class AudioManager : MonoBehaviour
         _musicSource.UnPause();
     }
 
+    public void SetMusicVol(float vol)
+    {
+        _musicSource.volume = vol;
+    }
+
+    public void MuteSFX()
+    {
+        _sfxSource.mute = true;
+    }
+    public void ResumeSFX()
+    {
+        _sfxSource.mute = false;
+    }
+
     private IEnumerator PlayDelayedSFX(AudioClip clip, float dealy = 0.2f)
     {
         yield return new WaitForSeconds(dealy);

@@ -24,19 +24,10 @@ public class BackGroundPlayer : MonoBehaviour
         while (true)
         {
             SetRandomIdle();
-
-            
             yield return null;
-
             
             float animationLength = animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
-
-            
             yield return new WaitForSeconds(animationLength);
-
-           
-
-
         }
     }
     
