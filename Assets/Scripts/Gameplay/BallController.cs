@@ -35,6 +35,7 @@ public class BallController : MonoBehaviour
 
 
     private static readonly int KickHash = Animator.StringToHash("Kick");
+    private static readonly int defeatHash=Animator.StringToHash("Defeat");
     private readonly float[] lanes = { -8f, -4f ,0 ,4f ,8f };
     private Rigidbody rb;
     private bool isResetting;
@@ -172,6 +173,7 @@ public class BallController : MonoBehaviour
             return;
         if (collision.gameObject.CompareTag("Player"))
         {
+            ballKickAnimator?.SetTrigger(defeatHash);
             if (!player.canHeader)
             {
                 rb.AddForce(direction*-5f,ForceMode.Impulse);

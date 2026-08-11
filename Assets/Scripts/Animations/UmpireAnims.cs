@@ -6,7 +6,7 @@ public class UmpireAnims : MonoBehaviour
     [SerializeField] private AudioClip startWhistleClip;
     [SerializeField] private AudioClip ballMissClip;
     [SerializeField] private BallController ballController;
-    [SerializeField]private PlayerMovement playerMovement;
+    [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private GoalLine goalLine;
     private AudioSource audioSource;
     private Animator umpireAnimator;
@@ -15,17 +15,18 @@ public class UmpireAnims : MonoBehaviour
     {
         umpireAnimator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        ballController.onBallKick+=HandlePlayerKick;
         goalLine.onBallMiss+=HandleBallMiss;
         playerMovement.onBallStop+=HandleBallStopped;
-    }
 
-    private void HandlePlayerKick()
-    {
         umpireAnimator.SetTrigger("StartWhistle");
         StartCoroutine(PlayDelayedSFX(startWhistleClip));
-        ballController.onBallKick-=HandlePlayerKick;
+        if (GameManager.instance.IsGameStarted)
+        {
+            umpireAnimator.SetTrigger("StartWhistle");
+            StartCoroutine(PlayDelayedSFX(startWhistleClip));
+        }
     }
+
 
     private IEnumerator PlayDelayedSFX(AudioClip clip, float delay = 0.4f)
     {
