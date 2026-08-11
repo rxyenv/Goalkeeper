@@ -8,8 +8,6 @@ public class BackGroundPlayer : MonoBehaviour
     [SerializeField] private int totalIdleAnimations = 4;
     [SerializeField] private int totalWinAnimations=4;
     [SerializeField] private int totalLoseAnimations=4;
-    [SerializeField] private float moveDistance = 2f;
-    [SerializeField] private float moveSpeed = 2f;
 
 
     

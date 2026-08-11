@@ -20,9 +20,6 @@ public class BallController : MonoBehaviour
     private GameObject kicker;
 
     [SerializeField]
-    private AudioManager audioManager;
-
-    [SerializeField]
     private Animator ballKickAnimator;
 
     [SerializeField]
@@ -131,7 +128,7 @@ public class BallController : MonoBehaviour
         
         
         
-        audioManager?.PlayKick();
+        AudioManager.instance.PlayKick();
     }
     private void FixedUpdate()
     {
@@ -171,8 +168,10 @@ public class BallController : MonoBehaviour
     {
         if (isResetting)
             return;
+
         if (collision.gameObject.CompareTag("Player"))
         {
+            AudioManager.instance.PlayBallHitImpact();
             ballKickAnimator?.SetTrigger(defeatHash);
             if (!player.canHeader)
             {

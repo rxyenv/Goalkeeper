@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
 
     [Header("Win Targets")]
     [SerializeField] private int[] winTargets = { 10, 20, 30 };
-
     [Header("Scoring")]
     [SerializeField] private int savesPerStreakTick = 3;
 
@@ -40,6 +39,7 @@ public class GameManager : MonoBehaviour
         
     }
 
+
     private void Start()
     {
         OnGameStarted += HandleGameStart;
@@ -67,7 +67,6 @@ public class GameManager : MonoBehaviour
     {
         SaveStreak++;
         TotalSaves++;
-
         OnSaveScored?.Invoke(TotalSaves);
 
         if (savesPerStreakTick > 0 && SaveStreak % savesPerStreakTick == 0)
@@ -92,6 +91,7 @@ public class GameManager : MonoBehaviour
     {
         BestScore = CommitHighScore();
         OnWin?.Invoke(TotalSaves, BestScore);
+        AudioManager.instance.PlayWin();
     }
 
     public int CommitHighScore()

@@ -63,9 +63,22 @@ public class AudioManager : MonoBehaviour
     public void PlayBtnClick() => _sfxSource.PlayOneShot(btnClickSound);
     public void PlayStreakSound() => _sfxSource.PlayOneShot(streakSound);
     public void PlayWin() => _sfxSource.PlayOneShot(winSound);
-    public void PlayBallHitImpact() => _sfxSource.PlayOneShot(balHitImpact, 1.5f);
+    public void PlayBallHitImpact() => _sfxSource.PlayOneShot(balHitImpact, 0.2f);
     public void PlayBallNetHit() => _sfxSource.PlayOneShot(ballNetHitSound);
     public void PlayPlayerDiveSound() =>StartCoroutine(PlayDelayedSFX(diveSound));
+
+    public void DisableSource()
+    {
+        _sfxSource.Pause();
+        _ambineceSource.Pause();
+        _musicSource.Pause();
+    }
+    public void EnableSource()
+    {
+        _sfxSource.UnPause();
+        _ambineceSource.UnPause();
+        _musicSource.UnPause();
+    }
 
     private IEnumerator PlayDelayedSFX(AudioClip clip, float dealy = 0.2f)
     {

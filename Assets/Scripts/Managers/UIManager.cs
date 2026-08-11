@@ -6,310 +6,330 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-  // ── Panels ────────────────────────────────────────────────────────────────
-  [Header("Panels")]
-  [SerializeField] private GameObject pausePanel;
-  [SerializeField] private GameObject mainMenuPanel;
-  [SerializeField] private GameObject gameOverPanel;
-  [SerializeField] private GameObject winPanel;
-  [SerializeField] private GameObject livesPanel;
-  [SerializeField] private GameObject countdownPanel;
-  [SerializeField] private GameObject levelsPanel;
-  [SerializeField] private GameObject settingsPanel;
+    // ── Panels ────────────────────────────────────────────────────────────────
+    [Header("Panels")]
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject livesPanel;
+    [SerializeField] private GameObject countdownPanel;
+    [SerializeField] private GameObject levelsPanel;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private GameObject settingsPanelFromGame;
 
-  // ── HUD Text ──────────────────────────────────────────────────────────────
-  [Header("HUD Text")]
-  [SerializeField] private TextMeshProUGUI score;
-  [SerializeField] private TextMeshProUGUI finalScoreText;
-  [SerializeField] private TextMeshProUGUI winScoreText;
-  [SerializeField] private TMP_Text countdownText;
-  [SerializeField] private TextMeshProUGUI streakText;
-  [SerializeField] private TextMeshProUGUI highScoreText;
-  [SerializeField] private TextMeshProUGUI winHighScoreText;
+    // ── HUD Text ──────────────────────────────────────────────────────────────
+    [Header("HUD Text")]
+    [SerializeField] private TextMeshProUGUI score;
+    [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private TextMeshProUGUI winScoreText;
+    [SerializeField] private TMP_Text countdownText;
+    [SerializeField] private TextMeshProUGUI streakText;
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private TextMeshProUGUI winHighScoreText;
 
-  // ── Lives Icons ───────────────────────────────────────────────────────────
-  [Header("Lives Icons")]
-  [SerializeField] private GameObject ball1;
-  [SerializeField] private GameObject ball2;
-  [SerializeField] private GameObject ball3;
+    // ── Lives Icons ───────────────────────────────────────────────────────────
+    [Header("Lives Icons")]
+    [SerializeField] private GameObject ball1;
+    [SerializeField] private GameObject ball2;
+    [SerializeField] private GameObject ball3;
 
-  // ── Scene References ──────────────────────────────────────────────────────
-  [Header("Scene References")]
-  [SerializeField] private GameManager gameManager;
-  [SerializeField] private PlayerMovement player;
-  [SerializeField] private BallController ballController;
-  [SerializeField] private AudioManager audioManager;
-  [SerializeField] private SettingsManager settingsManager;
-  [SerializeField] private GameObject kicker;
+    // ── Scene References ──────────────────────────────────────────────────────
+    [Header("Scene References")]
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private PlayerMovement player;
+    [SerializeField] private BallController ballController;
+    [SerializeField] private SettingsManager settingsManager;
+    [SerializeField] private GameObject kicker;
 
-  // ── Screen Flash ──────────────────────────────────────────────────────────
-  [Header("Screen Flash")]
-  [SerializeField] private Image flashImage;
+    // ── Screen Flash ──────────────────────────────────────────────────────────
+    [Header("Screen Flash")]
+    [SerializeField] private Image flashImage;
 
-  private static readonly Color SaveColor = new Color(0f, 1f, 0f, 0.45f);
-  private static readonly Color GoalColor = new Color(1f, 0f, 0f, 0.45f);
+    private static readonly Color SaveColor = new Color(0f, 1f, 0f, 0.45f);
+    private static readonly Color GoalColor = new Color(1f, 0f, 0f, 0.45f);
 
-  private Coroutine _flashCoroutine;
-  private Coroutine _fadeOutCoroutine;
-  private Coroutine _holdGameCoroutine;
-  private Coroutine _resumeCoroutine;
+    private Coroutine _flashCoroutine;
+    private Coroutine _fadeOutCoroutine;
+    private Coroutine _holdGameCoroutine;
+    private Coroutine _resumeCoroutine;
 
-  void Start()
-  {
-    Time.timeScale = 0f;
-
-    pausePanel?.SetActive(false);
-    gameOverPanel?.SetActive(false);
-    winPanel?.SetActive(false);
-    countdownPanel?.SetActive(false);
-    settingsPanel?.SetActive(false);
-    levelsPanel?.SetActive(false);
-    livesPanel?.SetActive(false);
-    mainMenuPanel?.SetActive(true);
-
-    ball1?.SetActive(true);
-    ball2?.SetActive(true);
-    ball3?.SetActive(true);
-
-    if (score != null) score.text = "0";
-
-    if (gameManager != null)
+    void Start()
     {
-      gameManager.OnSaveScored += HandleSaveScored;
-      gameManager.OnStreakMilestone += ShowStreakText;
-      gameManager.OnLiveLost += HandleLiveLost;
-      gameManager.OnWin += HandleWin;
-    }
-  }
+        Time.timeScale = 0f;
 
-  // Called by BallController when ball resets after a save
-  public void ScoreIncrease()
-  {
-    FlashScreen(SaveColor);
-    gameManager?.RegisterSave();
-    // VFXManager.instance.PlayGroundTouchEffect();
-  }
+        pausePanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        winPanel?.SetActive(false);
+        countdownPanel?.SetActive(false);
+        settingsPanel?.SetActive(false);
+        levelsPanel?.SetActive(false);
+        livesPanel?.SetActive(false);
+        mainMenuPanel?.SetActive(true);
 
-  // Called by GoalLine when ball crosses the goal line
-  public void Losegoal()
-  {
-    FlashScreen(GoalColor);
-    gameManager?.RegisterGoal();
-    VFXManager.instance.PlayGroundTouchEffect();
-  }
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
 
-  private void HandleSaveScored(int totalSaves)
-  {
-    if (score != null) score.text = totalSaves.ToString();
-  }
+        if (score != null) score.text = "0";
 
-  private void HandleLiveLost(int livesRemaining)
-  {
-    if (livesRemaining == 2)
-      ball3?.SetActive(false);
-    else if (livesRemaining == 1)
-      ball2?.SetActive(false);
-    else if (livesRemaining <= 0)
-    {
-      ball1?.SetActive(false);
-      _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
-    }
-  }
-
-  private void HandleWin(int totalSaves, int best)
-  {
-    ballController?.StopBall();
-    if (ballController != null) ballController.enabled = false;
-    if (player != null) player.enabled = false;
-
-    if (winScoreText != null) winScoreText.text = totalSaves + " SAVES";
-    if (winHighScoreText != null) winHighScoreText.text = "BEST: " + best.ToString("N0");
-
-    Time.timeScale = 0f;
-    winPanel?.SetActive(true);
-  }
-
-  private IEnumerator FadeOutGameObjects()
-  {
-    ballController?.StopBall();
-    if (ballController != null) ballController.enabled = false;
-    if (player != null) player.enabled = false;
-
-    GameObject[] fadeObjects = { ballController?.gameObject, kicker };
-    float duration = 1f;
-    float timer = 0f;
-
-    Vector3[] initialScales = new Vector3[fadeObjects.Length];
-    for (int i = 0; i < fadeObjects.Length; i++)
-      if (fadeObjects[i] != null)
-        initialScales[i] = fadeObjects[i].transform.localScale;
-
-    while (timer < duration)
-    {
-      timer += Time.unscaledDeltaTime;
-      float s = 1f - timer / duration;
-      for (int i = 0; i < fadeObjects.Length; i++)
-        if (fadeObjects[i] != null)
-          fadeObjects[i].transform.localScale = initialScales[i] * s;
-      yield return null;
+        if (gameManager != null)
+        {
+            gameManager.OnSaveScored += HandleSaveScored;
+            gameManager.OnStreakMilestone += ShowStreakText;
+            gameManager.OnLiveLost += HandleLiveLost;
+            gameManager.OnWin += HandleWin;
+        }
     }
 
-    for (int i = 0; i < fadeObjects.Length; i++)
-      fadeObjects[i]?.SetActive(false);
-
-    _holdGameCoroutine = StartCoroutine(HoldGame());
-  }
-
-  private IEnumerator HoldGame()
-  {
-    yield return new WaitForSeconds(3f);
-    audioManager?.PlayGameOver();
-    ShowGameOverPanel();
-  }
-
-  private void ShowGameOverPanel()
-  {
-    int totalSaves = gameManager != null ? gameManager.TotalSaves : 0;
-    int best = gameManager != null ? gameManager.BestScore : 0;
-
-    Time.timeScale = 0f;
-    if (finalScoreText != null) finalScoreText.text = totalSaves + " SAVES";
-    if (highScoreText != null) highScoreText.text = "BEST: " + best.ToString("N0");
-    gameOverPanel?.SetActive(true);
-  }
-
-  public void Beginner() => SetDifficulty(0);
-  public void Intermediate() => SetDifficulty(1);
-  public void Difficult() => SetDifficulty(2);
-
-  public void SetDifficulty(int level)
-  {
-    PlayerPrefs.SetInt("Level", level);
-    gameManager?.InitGame();
-
-    winPanel?.SetActive(false);
-    gameOverPanel?.SetActive(false);
-    levelsPanel?.SetActive(false);
-    livesPanel?.SetActive(true);
-
-    if (score != null) score.text = "0";
-    ball1?.SetActive(true);
-    ball2?.SetActive(true);
-    ball3?.SetActive(true);
-
-    if (player != null) player.enabled = true;
-    Time.timeScale = 1f;
-
-    if (ballController != null)
+    // Called by BallController when ball resets after a save
+    public void ScoreIncrease()
     {
-      ballController.gameObject.SetActive(true);
-      ballController.enabled = true;
-      ballController.ResetGame();
+        FlashScreen(SaveColor);
+        gameManager.RegisterSave();
     }
-  }
 
-  // From main menu "Play" button — no scene reload needed
-  public void StartButton()
-  {
-    mainMenuPanel?.SetActive(false);
-    levelsPanel?.SetActive(true);
-  }
+    // Called by GoalLine when ball crosses the goal line
+    public void Losegoal()
+    {
+        gameManager?.RegisterGoal();
+        VFXManager.instance.PlayGroundTouchEffect();
+    }
 
-  public void ShowMenu()
-  {
-    mainMenuPanel?.SetActive(false);
-    levelsPanel?.SetActive(true);
+    private void HandleSaveScored(int totalSaves)
+    {
+        if (score != null) score.text = totalSaves.ToString();
+    }
+
+    private void HandleLiveLost(int livesRemaining)
+    {
+        if (livesRemaining == 2)
+            ball3?.SetActive(false);
+        else if (livesRemaining == 1)
+            ball2?.SetActive(false);
+        else if (livesRemaining <= 0)
+        {
+            ball1?.SetActive(false);
+            _fadeOutCoroutine = StartCoroutine(FadeOutGameObjects());
+        }
+    }
+
+    private void HandleWin(int totalSaves, int best)
+    {
+        ballController?.StopBall();
+        if (ballController != null) ballController.enabled = false;
+        if (player != null) player.enabled = false;
+
+        if (winScoreText != null) winScoreText.text = totalSaves + " SAVES";
+        if (winHighScoreText != null) winHighScoreText.text = "BEST: " + best.ToString("N0");
+
+        Time.timeScale = 0f;
+        livesPanel.SetActive(false);
+        winPanel?.SetActive(true);
+    }
+
+    private IEnumerator FadeOutGameObjects()
+    {
+        ballController?.StopBall();
+        if (ballController != null) ballController.enabled = false;
+        if (player != null) player.enabled = false;
+
+        GameObject[] fadeObjects = { ballController?.gameObject };
+        float duration = 1f;
+        float timer = 0f;
+
+        Vector3[] initialScales = new Vector3[fadeObjects.Length];
+        for (int i = 0; i < fadeObjects.Length; i++)
+            if (fadeObjects[i] != null)
+                initialScales[i] = fadeObjects[i].transform.localScale;
+
+        while (timer < duration)
+        {
+            timer += Time.unscaledDeltaTime;
+            float s = 1f - timer / duration;
+            for (int i = 0; i < fadeObjects.Length; i++)
+                if (fadeObjects[i] != null)
+                    fadeObjects[i].transform.localScale = initialScales[i] * s;
+            yield return null;
+        }
+
+        for (int i = 0; i < fadeObjects.Length; i++)
+            fadeObjects[i]?.SetActive(false);
+
+        _holdGameCoroutine = StartCoroutine(HoldGame());
+    }
+
+    private IEnumerator HoldGame()
+    {
+        yield return new WaitForSeconds(3f);
+        AudioManager.instance.PlayGameOver();
+        ShowGameOverPanel();
+    }
+
+    private void ShowGameOverPanel()
+    {
+        int totalSaves = gameManager != null ? gameManager.TotalSaves : 0;
+        int best = gameManager != null ? gameManager.BestScore : 0;
+        livesPanel.SetActive(false);
+        Time.timeScale = 0f;
+        if (finalScoreText != null) finalScoreText.text = totalSaves + " SAVES";
+        if (highScoreText != null) highScoreText.text = "BEST: " + best.ToString("N0");
+        gameOverPanel?.SetActive(true);
+    }
+
+    public void Beginner() => SetDifficulty(0);
+    public void Intermediate() => SetDifficulty(1);
+    public void Difficult() => SetDifficulty(2);
+
+    public void SetDifficulty(int level)
+    {
+        PlayerPrefs.SetInt("Level", level);
+        gameManager?.InitGame();
+        AudioManager.instance.StopBgm();
+        AudioManager.instance.PlayCrowdShoutAmbience();
+        winPanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        levelsPanel?.SetActive(false);
+        livesPanel?.SetActive(true);
+
+        if (score != null) score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        if (player != null) player.enabled = true;
+        Time.timeScale = 1f;
+
+        if (ballController != null)
+        {
+            ballController.gameObject.SetActive(true);
+            ballController.enabled = true;
+            ballController.ResetGame();
+        }
+    }
+
+    // From main menu "Play" button — no scene reload needed
+    public void StartButton()
+    {
+        mainMenuPanel?.SetActive(false);
+        levelsPanel?.SetActive(true);
+    }
+
+    public void ShowMenu()
+    {
+        mainMenuPanel?.SetActive(false);
+        levelsPanel?.SetActive(true);
         pausePanel?.SetActive(false);
         livesPanel.SetActive(false);
     }
 
-  public void QuitButton() => Application.Quit();
+    public void QuitButton() => Application.Quit();
 
-  public void ShowPause()
-  {
-    if (pausePanel == null) return;
-    pausePanel.SetActive(true);
-    pausePanel.transform.localScale = Vector3.zero;
-    Time.timeScale = 0f;
-    if (player != null) player.enabled = false;
-    if (ballController != null) ballController.enabled = false;
-    pausePanel.transform.DOKill();
-    pausePanel.transform.DOScale(Vector3.one, 0.5f)
-        .SetEase(Ease.OutBack, 3.5f)
-        .SetUpdate(true);
-  }
-
-  public void ResumeButton()
-  {
-    if (pausePanel != null)
+    public void ShowPause()
     {
-      pausePanel.transform.DOKill();
-      pausePanel.transform.DOScale(Vector3.zero, 0.35f)
-          .SetEase(Ease.InBack, 3.5f)
-          .SetUpdate(true)
-          .OnComplete(() =>
-          {
-            pausePanel.SetActive(false);
-              settingsPanel.SetActive(false);   
-              StartCoroutine(ResumeCountdown());
-          });
+        if (pausePanel == null) return;
+        AudioManager.instance.DisableSource();
+        pausePanel.SetActive(true);
+        pausePanel.transform.localScale = Vector3.zero;
+        Time.timeScale = 0f;
+        if (player != null) player.enabled = false;
+        if (ballController != null) ballController.enabled = false;
+        pausePanel.transform.DOKill();
+        pausePanel.transform.DOScale(Vector3.one, 0.5f)
+            .SetEase(Ease.OutBack, 3.5f)
+            .SetUpdate(true);
     }
-    else
+
+    public void ResumeButton()
     {
-      _resumeCoroutine = StartCoroutine(ResumeCountdown());
+        AudioManager.instance.EnableSource();
+
+        if (pausePanel != null)
+        {
+            Time.timeScale = 1f;
+            pausePanel.transform.DOKill();
+            pausePanel.transform.DOScale(Vector3.zero, 0.35f)
+                .SetEase(Ease.InBack, 3.5f)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    pausePanel.SetActive(false);
+                    settingsPanel.SetActive(false);
+                    StartCoroutine(ResumeCountdown());
+                });
+        }
+        else
+        {
+            _resumeCoroutine = StartCoroutine(ResumeCountdown());
+        }
     }
-  }
 
-  public void HomeButton()
-  {
-    if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
-    if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
-
-    gameManager?.InitGame();
-   
-
-    if (score != null) score.text = "0";
-    ball1?.SetActive(true);
-    ball2?.SetActive(true);
-    ball3?.SetActive(true);
-
-    if (ballController != null)
+    public void HomeButton()
     {
-      ballController.StopBall();
-      ballController.enabled = true;
-    }
-    if (player != null) player.enabled = true;
+        if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
+        if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
 
-    if (pausePanel != null && pausePanel.activeSelf)
-    {
-      pausePanel.transform.DOKill();
-      pausePanel.transform.DOScale(Vector3.zero, 0.35f)
-          .SetEase(Ease.InBack, 3.5f)
-          .SetUpdate(true)
-          .OnComplete(() =>
-          {
-            pausePanel.SetActive(false);
+        AudioManager.instance.PlayBgm();
+        gameManager?.InitGame();
+
+
+        if (score != null) score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        if (ballController != null)
+        {
+            ballController.StopBall();
+            ballController.enabled = true;
+        }
+        if (player != null) player.enabled = true;
+
+        if (pausePanel != null && pausePanel.activeSelf)
+        {
+            pausePanel.transform.DOKill();
+            pausePanel.transform.DOScale(Vector3.zero, 0.35f)
+                .SetEase(Ease.InBack, 3.5f)
+                .SetUpdate(true)
+                .OnComplete(() =>
+                {
+                    pausePanel.SetActive(false);
+                    settingsPanel?.SetActive(false);
+                    gameOverPanel?.SetActive(false);
+                    winPanel?.SetActive(false);
+                    livesPanel?.SetActive(false);
+                    mainMenuPanel?.SetActive(true);
+                });
+        }
+        else
+        {
+            pausePanel?.SetActive(false);
             settingsPanel?.SetActive(false);
             gameOverPanel?.SetActive(false);
             winPanel?.SetActive(false);
             livesPanel?.SetActive(false);
             mainMenuPanel?.SetActive(true);
-          });
+        }
     }
-    else
+
+    public void ResumeFromSettings()
     {
-      pausePanel?.SetActive(false);
-      settingsPanel?.SetActive(false);
-      gameOverPanel?.SetActive(false);
-      winPanel?.SetActive(false);
-      livesPanel?.SetActive(false);
-      mainMenuPanel?.SetActive(true);
+        settingsPanelFromGame?.SetActive(false);
+        Time.timeScale = 1f;
+        AudioManager.instance.EnableSource();
     }
-  }
 
-  public void BackButton() => settingsPanel?.SetActive(false);
-
-  public void ShowSettings() => settingsPanel?.SetActive(true);
+    public void ShowSettings() 
+    {
+        settingsPanel?.SetActive(true);
+        AudioManager.instance.DisableSource();
+    }
+    public void ShowSettingsFromGame()
+    {
+        settingsPanelFromGame?.SetActive(true);
+        AudioManager.instance.DisableSource();
+        Time.timeScale = 0f;
+    }
 
   // In-place restart — no scene reload
   public void NewGame()
@@ -366,6 +386,8 @@ public class UIManager : MonoBehaviour
   private void ShowStreakText(int streak)
   {
     if (streakText == null) return;
+
+    AudioManager.instance.PlayStreakSound();
     streakText.DOKill();
     streakText.text = streak + " SAVES!";
     streakText.gameObject.SetActive(true);

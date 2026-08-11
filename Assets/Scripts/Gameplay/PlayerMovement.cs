@@ -14,7 +14,6 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private float laneDistance = 4f;
 
   [Header("References")]
-  [SerializeField] private AudioManager audioManager;
   [SerializeField] private BallController ballController;
   [SerializeField] private CrowdController crowdController;
   [SerializeField] private BackGroundTeamManager backGroundTeamManager;
@@ -67,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
       return;
     if (Input.GetKeyDown(KeyCode.Space))
     {
+      AudioManager.instance.PlayPlayerDiveSound();
       TriggerDive();
     }
     if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
@@ -155,7 +155,7 @@ public class PlayerMovement : MonoBehaviour
       backGroundTeamManager.PlayWin();
       crowdController.PlayCheer();
       _scoredThisBall = true;
-      audioManager?.PlaySave();
+      AudioManager.instance.PlaySave();
       ballController?.RegisterSave();
     }
   }
