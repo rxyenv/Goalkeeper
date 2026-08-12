@@ -56,6 +56,7 @@ public class PlayerMovement : MonoBehaviour
     pos = _rb.position;
     pos.x = _targetX;
     _rb.position = pos;
+    OnDiveFinished();
   }
 
   void Update()
@@ -116,14 +117,22 @@ public class PlayerMovement : MonoBehaviour
     {
       _isDiving=true;
       _animator.applyRootMotion=true;
-      if (ballController.curveDirection == -1)
+      if (ballController.curveDirection == 1)
       {
-        _animator?.SetTrigger(leftDiveHash);
+        if (ballController.shouldCurve)
+         _animator?.SetTrigger(rightDiveDash);
+  
+        else
+         _animator?.SetTrigger(leftDiveHash);
         
       }
-      else if (ballController.curveDirection == 1 || ballController.curveDirection == 0)
+      else if (ballController.curveDirection == -1 || ballController.curveDirection == 0)
       {
-        _animator?.SetTrigger(rightDiveDash);
+        if (ballController.shouldCurve)
+          _animator?.SetTrigger(leftDiveHash);
+
+        else
+          _animator?.SetTrigger(rightDiveDash);
       }
       Invoke(nameof(OnDiveFinished), 2.5f);
 
