@@ -8,30 +8,23 @@ public class UmpireAnims : MonoBehaviour
     [SerializeField] private BallController ballController;
     [SerializeField] private PlayerMovement playerMovement;
     [SerializeField] private GoalLine goalLine;
-    private AudioSource audioSource;
     private Animator umpireAnimator;
 
     private void Start()
     {
         umpireAnimator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
         goalLine.onBallMiss+=HandleBallMiss;
         playerMovement.onBallStop+=HandleBallStopped;
+        GameManager.instance.OnGameStarted += HandleGameStart;
 
         umpireAnimator.SetTrigger("StartWhistle");
-        StartCoroutine(PlayDelayedSFX(startWhistleClip));
-        if (GameManager.instance.IsGameStarted)
-        {
-            umpireAnimator.SetTrigger("StartWhistle");
-            StartCoroutine(PlayDelayedSFX(startWhistleClip));
-        }
+
     }
 
-
-    private IEnumerator PlayDelayedSFX(AudioClip clip, float delay = 0.4f)
+    private void HandleGameStart()
     {
-        yield return new WaitForSeconds(delay);
-        audioSource.PlayOneShot(clip);
+        umpireAnimator.SetTrigger("StartWhistle");
+        AudioManager.instance.PlayUmpireClip(startWhistleClip);
     }
 
     private void HandleBallStopped()
@@ -44,9 +37,9 @@ public class UmpireAnims : MonoBehaviour
     {
         umpireAnimator.SetTrigger("GoalWhistle");
         VFXManager.instance.PlayGroundTouchEffect();
-        StartCoroutine(PlayDelayedSFX(ballMissClip, 0.5f));
-        
+        AudioManager.instance.PlayUmpireClip(ballMissClip);
     }
+
     void OnDestroy()
     {
         goalLine.onBallMiss-=HandleBallMiss;

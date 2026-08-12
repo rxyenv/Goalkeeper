@@ -2,6 +2,7 @@ using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -169,7 +170,7 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator HoldGame()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
         AudioManager.instance.PlayGameOver();
         ShowGameOverPanel();
     }
@@ -193,6 +194,7 @@ public class UIManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("Level", level);
         gameManager?.InitGame();
+        gameManager.OnGameStarted?.Invoke();
         AudioManager.instance.StopBgm();
         AudioManager.instance.PlayCrowdShoutAmbience();
         winPanel?.SetActive(false);
@@ -340,36 +342,34 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-  // In-place restart — no scene reload
-  public void NewGame()
-  {
-    if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
-    if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
-
-    gameManager?.InitGame();
-
-    winPanel?.SetActive(false);
-    gameOverPanel?.SetActive(false);
-    pausePanel?.SetActive(false);
-    livesPanel?.SetActive(true);
-
-    if (score != null) score.text = "0";
-    ball1?.SetActive(true);
-    ball2?.SetActive(true);
-    ball3?.SetActive(true);
-
-    if (player != null) player.enabled = true;
-    Time.timeScale = 1f;
-
-    if (ballController != null)
+    // In-place restart — no scene reload
+    public void NewGame()
     {
-      ballController.gameObject.SetActive(true);
-      ballController.enabled = true;
-      ballController.ResetGame();
-    }
-  }
+        if (_fadeOutCoroutine != null) { StopCoroutine(_fadeOutCoroutine); _fadeOutCoroutine = null; }
+        if (_holdGameCoroutine != null) { StopCoroutine(_holdGameCoroutine); _holdGameCoroutine = null; }
 
-  private void FlashScreen(Color color)
+        gameManager?.InitGame();
+
+        winPanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        pausePanel?.SetActive(false);
+        livesPanel?.SetActive(true);
+
+        score.text = "0";
+        ball1?.SetActive(true);
+        ball2?.SetActive(true);
+        ball3?.SetActive(true);
+
+        player.enabled = true;
+        Time.timeScale = 1f;
+
+        ballController.gameObject.SetActive(true);
+        ballController.enabled = true;
+        ballController.ResetGame();
+
+    }
+
+    private void FlashScreen(Color color)
   {
     if (flashImage == null) return;
     if (_flashCoroutine != null) StopCoroutine(_flashCoroutine);

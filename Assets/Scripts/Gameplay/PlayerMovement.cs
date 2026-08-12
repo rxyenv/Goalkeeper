@@ -41,7 +41,6 @@ public class PlayerMovement : MonoBehaviour
     _rb = GetComponent<Rigidbody>();
     if (_rb == null)
     {
-      Debug.LogError("Rigidbody not found on " + gameObject.name, this);
       enabled = false;
       return;
     }
@@ -53,22 +52,24 @@ public class PlayerMovement : MonoBehaviour
     _initialYRotation=transform.rotation;
     _animator = GetComponent<Animator>();
     if (_animator == null)
-      Debug.LogWarning("Animator not found on " + gameObject.name, this);
-    // Snap to center lane immediately so first FixedUpdate has correct target
+
     pos = _rb.position;
     pos.x = _targetX;
     _rb.position = pos;
+    OnDiveFinished();
   }
 
   void Update()
   {
-    if(_isDiving)
-      return;
-    if (Input.GetKeyDown(KeyCode.Space))
-    {
-      AudioManager.instance.PlayPlayerDiveSound();
-      TriggerDive();
-    }
+        if (_isDiving)
+            return;
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+          AudioManager.instance.PlayPlayerDiveSound();
+          TriggerDive();
+        }
+
+
     if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
     {
       _animator.applyRootMotion=false;
@@ -83,6 +84,8 @@ public class PlayerMovement : MonoBehaviour
       
       _animator?.SetTrigger(rightMoveHash);
     }
+
+
     _currentLane = Mathf.Clamp(_currentLane, 0, TotalLanes - 1);
     _targetX = (_currentLane - (TotalLanes / 2)) * laneDistance;
   }
@@ -102,7 +105,6 @@ public class PlayerMovement : MonoBehaviour
     if(_currentLane==2 && ballController.laneX == 0f)
     {
       canHeader=true;
-      Debug.Log("Checked");
     }
     else
     {
@@ -111,19 +113,30 @@ public class PlayerMovement : MonoBehaviour
   }
   public void TriggerDive()
   {
-    if (ballController.shouldCurve)
+    if (!_isDiving)
     {
       _isDiving=true;
       _animator.applyRootMotion=true;
-      if (ballController.curveDirection == -1)
+      if (ballController.curveDirection == 1)
       {
-        _animator?.SetTrigger(leftDiveHash);
+        if (ballController.shouldCurve)
+         _animator?.SetTrigger(rightDiveDash);
+  
+        else
+         _animator?.SetTrigger(leftDiveHash);
+        
       }
-      else if (ballController.curveDirection == 1)
+      else if (ballController.curveDirection == -1 || ballController.curveDirection == 0)
       {
-        _animator?.SetTrigger(rightDiveDash);
+        if (ballController.shouldCurve)
+          _animator?.SetTrigger(leftDiveHash);
+
+        else
+          _animator?.SetTrigger(rightDiveDash);
       }
-    }
+      Invoke(nameof(OnDiveFinished), 2.5f);
+
+        }
     else
       return;
     

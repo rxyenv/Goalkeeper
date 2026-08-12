@@ -1,43 +1,69 @@
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 public class SettingsManager : MonoBehaviour
 {
-
-    [Tooltip("Toggle that mutes / unmutes the AudioSource.")]
-    [SerializeField] private Toggle musicToggle;
-
-    [Tooltip("Slider (0–1) that sets AudioSource.volume in real time.")]
-    [SerializeField] private Slider volumeSlider;
-
+    [Header("References")]
+    [SerializeField] private Toggle _sfxToggle;
+    [SerializeField] private Slider _musicVolumeSlider;
+    [SerializeField] private Slider _sfxVolumeSlider;
 
 
     void Start()
     {
-        if (volumeSlider != null)
+        _musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        _musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+
+        _sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        _sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+
+        _sfxToggle.isOn = PlayerPrefs.GetInt("IsSFXOn", 1) == 1 ? true:false;
+        _sfxToggle.onValueChanged.AddListener((v) =>
         {
-            volumeSlider.value = 1f;
-            volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
-        }
-        if (musicToggle != null)
-            musicToggle.onValueChanged.AddListener(OnMusicToggled);
+            OnSFXToggled(v);
+        });
+    }
+
+    private void OnEnable()
+    {
+        _musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        _musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+
+        _sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        _sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+
+        _sfxToggle.isOn = PlayerPrefs.GetInt("IsSFXOn", 1) == 1 ? true : false;
+        _sfxToggle.onValueChanged.AddListener((v) =>
+        {
+            OnSFXToggled(v);
+        });
     }
 
     void OnDestroy()
     {
-        if (volumeSlider != null)
-            volumeSlider.onValueChanged.RemoveListener(OnVolumeChanged);
-        if (musicToggle != null)
-            musicToggle.onValueChanged.RemoveListener(OnMusicToggled);
+        if (_musicVolumeSlider != null)
+            _musicVolumeSlider.onValueChanged.RemoveListener(OnMusicVolumeChanged);
+        if (_sfxToggle != null)
+            _sfxToggle.onValueChanged.RemoveListener(OnSFXToggled);
     }
 
-    private void OnVolumeChanged(float value)
+    private void OnMusicVolumeChanged(float value)
     {
         AudioManager.instance.SetMusicVol(value);
+        PlayerPrefs.SetFloat("MusicVolume", value);
+    }
+    private void OnSFXVolumeChanged(float value)
+    {
+        AudioManager.instance.SetSFXVol(value);
+        PlayerPrefs.SetFloat("SFXVolume", value);
     }
 
-    private void OnMusicToggled(bool isOn)
+    private void OnSFXToggled(bool isOn)
     {
-        AudioManager.instance.MuteSFX();
+        if (isOn) AudioManager.instance.UnMuteSFX();
+        else AudioManager.instance.MuteSFX();
+
+        PlayerPrefs.SetInt("IsSFXOn", isOn ? 1 : 0);
     }
 }
