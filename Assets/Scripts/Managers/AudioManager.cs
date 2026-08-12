@@ -84,14 +84,20 @@ public class AudioManager : MonoBehaviour
     {
         _musicSource.volume = vol;
     }
+    public void SetSFXVol(float vol)
+    {
+        _sfxSource.volume = vol;
+    }
 
     public void MuteSFX()
     {
         _sfxSource.mute = true;
+        _ambineceSource.mute = true;
     }
-    public void ResumeSFX()
+    public void UnMuteSFX()
     {
         _sfxSource.mute = false;
+        _ambineceSource.mute = false;
     }
 
     private IEnumerator PlayDelayedSFX(AudioClip clip, float dealy = 0.2f)
@@ -105,16 +111,16 @@ public class AudioManager : MonoBehaviour
 
         _ambineceSource.clip = crowdShoutSound;
         _ambineceSource.loop = true;
-        _ambineceSource.volume = 0.8f;
+        _ambineceSource.volume = PlayerPrefs.GetFloat("SFXVolume", 0.8f);
         _ambineceSource.Play();
     }
     public void PlayBgm()
     {
-        if(_musicSource.isPlaying) _musicSource.Stop();
+        if(_musicSource.isPlaying) return;
 
         _musicSource.clip = bgm;
         _musicSource.loop = true;
-        _musicSource.volume = 0.5f;
+        _musicSource.volume = PlayerPrefs.GetFloat("MusicVolume", 1f);
         _musicSource.Play();
     }
 
@@ -127,4 +133,11 @@ public class AudioManager : MonoBehaviour
     {
         return Random.Range(0.85f, 1.2f);
     }
+
+    public void PlayUmpireClip(AudioClip clip)
+    {
+        StartCoroutine(PlayDelayedSFX(clip, 0.4f));
+    }
+
+
 }
