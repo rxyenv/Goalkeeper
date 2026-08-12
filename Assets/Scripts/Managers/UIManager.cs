@@ -170,7 +170,7 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator HoldGame()
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
         AudioManager.instance.PlayGameOver();
         ShowGameOverPanel();
     }
@@ -368,7 +368,6 @@ public class UIManager : MonoBehaviour
         ballController.ResetGame();
 
     }
-
 
     private void FlashScreen(Color color)
   {

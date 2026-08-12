@@ -25,6 +25,21 @@ public class SettingsManager : MonoBehaviour
         });
     }
 
+    private void OnEnable()
+    {
+        _musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        _musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+
+        _sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        _sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+
+        _sfxToggle.isOn = PlayerPrefs.GetInt("IsSFXOn", 1) == 1 ? true : false;
+        _sfxToggle.onValueChanged.AddListener((v) =>
+        {
+            OnSFXToggled(v);
+        });
+    }
+
     void OnDestroy()
     {
         if (_musicVolumeSlider != null)

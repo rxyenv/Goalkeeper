@@ -87,6 +87,7 @@ public class AudioManager : MonoBehaviour
     public void SetSFXVol(float vol)
     {
         _sfxSource.volume = vol;
+        _ambineceSource.volume = vol;
     }
 
     public void MuteSFX()

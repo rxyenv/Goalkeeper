@@ -7,33 +7,34 @@ public class BackGroundTeamManager : MonoBehaviour
 
     private Vector3[] blueTeamStartPos; 
     private Vector3[] purpleTeamStartPos;
+    private Quaternion[] blueTeamStartRotation; 
+    private Quaternion[] purpleTeamStartRotation;
 
     private void Start()
     {
         blueTeamStartPos = new Vector3[blueTeam.Length];
         purpleTeamStartPos = new Vector3[purpleTeam.Length];
+        blueTeamStartRotation = new Quaternion[blueTeam.Length];
+        purpleTeamStartRotation = new Quaternion[purpleTeam.Length];
 
-        for(int i = 0; i < blueTeam.Length; i++)
-        {
-            blueTeamStartPos[i] = blueTeam[i].transform.position;
-        }
-
-        for(int i = 0; i < purpleTeam.Length; i++)
-        {
-            purpleTeamStartPos[i] = purpleTeam[i].transform.position;
-        }
+        CollectBGPlayerPositionAndRotation(blueTeam, blueTeamStartPos, blueTeamStartRotation);
+        CollectBGPlayerPositionAndRotation(purpleTeam, purpleTeamStartPos, purpleTeamStartRotation);
     }
 
-    private void ResetBackgroundPlayersPos()
+    private void CollectBGPlayerPositionAndRotation(BackGroundPlayer[] teamPos, Vector3[] posArr, Quaternion[] rotArr)
     {
-        for(int i = 0; i < blueTeam.Length; i++)
+        for (int i = 0; i < teamPos.Length; i++)
         {
-            blueTeam[i].transform.position = blueTeamStartPos[i];
+            posArr[i] = teamPos[i].transform.position;
+            rotArr[i] = teamPos[i].transform.rotation;
         }
-
-        for(int i = 0; i < purpleTeam.Length; i++)
+    }
+    private void ResetBGPlayerPositionAndRotation(BackGroundPlayer[] teamPos, Vector3[] posArr, Quaternion[] rotArr)
+    {
+        for (int i = 0; i < teamPos.Length; i++)
         {
-            purpleTeam[i].transform.position = purpleTeamStartPos[i];
+            teamPos[i].transform.position = posArr[i];
+            teamPos[i].transform.rotation = rotArr[i];
         }
     }
 
@@ -45,7 +46,8 @@ public class BackGroundTeamManager : MonoBehaviour
         foreach (BackGroundPlayer player in purpleTeam)
             player.PlayLoseAnimation();
 
-        ResetBackgroundPlayersPos();
+        ResetBGPlayerPositionAndRotation(blueTeam, blueTeamStartPos, blueTeamStartRotation);
+        ResetBGPlayerPositionAndRotation(purpleTeam, purpleTeamStartPos, purpleTeamStartRotation);
     }
 
     public void PlayLose()
@@ -56,6 +58,7 @@ public class BackGroundTeamManager : MonoBehaviour
         foreach (BackGroundPlayer player in purpleTeam)
             player.PlayWinAnimation();
 
-        ResetBackgroundPlayersPos();
+        ResetBGPlayerPositionAndRotation(blueTeam, blueTeamStartPos, blueTeamStartRotation);
+        ResetBGPlayerPositionAndRotation(purpleTeam, purpleTeamStartPos, purpleTeamStartRotation);
     }
 }
