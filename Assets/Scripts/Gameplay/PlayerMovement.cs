@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Data;
-using Unity.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -11,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
   [SerializeField] private float speed = 12f;
 
   [Tooltip("World-space distance between adjacent lanes. Must match the ball's lane spacing.")]
-  [SerializeField] private float laneDistance = 4f;
+  [SerializeField] private float laneDistance = 5f;
 
   [Header("References")]
   [SerializeField] private BallController ballController;
@@ -23,6 +20,8 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int headerHash=Animator.StringToHash("Header");
     private static readonly int leftMoveHash=Animator.StringToHash("LeftMove");
     private static readonly int rightMoveHash=Animator.StringToHash("RightMove");
+    private static readonly int playAfterLeftDiveHash=Animator.StringToHash("AfterLeftDive");
+    private static readonly int playAfterRightDiveHash=Animator.StringToHash("AfterRightDive");
     private const int TotalLanes = 5;
     private int _currentLane;
     private float _targetX;
@@ -33,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 pos;
     private float _initialY;
     private Quaternion _initialYRotation;
+    private int diveLane;
     public bool canHeader=false;
     public Action onBallStop;
 
@@ -61,27 +61,32 @@ public class PlayerMovement : MonoBehaviour
 
   void Update()
   {
-        if (_isDiving)
-            return;
-        if (Input.GetKeyDown(KeyCode.Space))
+    if (_isDiving)
+      return;
+    if (Input.GetKeyDown(KeyCode.Space))
+    {
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-          AudioManager.instance.PlayPlayerDiveSound();
-          TriggerDive();
+            TriggerLeftDive();
+            return;
         }
 
-
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
+            TriggerRightDive();
+            return;
+        }
+    }
     if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
     {
       _animator.applyRootMotion=false;
       _currentLane++;
-      
       _animator?.SetTrigger(leftMoveHash);
     }
     else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
     {
       _animator.applyRootMotion=false;
       _currentLane--;
-      
       _animator?.SetTrigger(rightMoveHash);
     }
 
@@ -111,44 +116,53 @@ public class PlayerMovement : MonoBehaviour
       canHeader=false;
     }
   }
-  public void TriggerDive()
+  public void TriggerLeftDive()
   {
     if (!_isDiving)
     {
       _isDiving=true;
       _animator.applyRootMotion=true;
-      if (ballController.curveDirection == 1)
-      {
-        if (ballController.shouldCurve)
-         _animator?.SetTrigger(rightDiveDash);
-  
-        else
-         _animator?.SetTrigger(leftDiveHash);
-        
-      }
-      else if (ballController.curveDirection == -1 || ballController.curveDirection == 0)
-      {
-        if (ballController.shouldCurve)
-          _animator?.SetTrigger(leftDiveHash);
-
-        else
-          _animator?.SetTrigger(rightDiveDash);
-      }
+      diveLane=_currentLane+2;
+      _currentLane+=2;
+      AudioManager.instance.PlayPlayerDiveSound();
+      _animator?.SetTrigger(leftDiveHash);
+      Invoke(nameof(OnDiveFinished), 2.5f);
+    }
+    
+  }
+  public void TriggerRightDive()
+  {
+    if (!_isDiving)
+    {
+      _isDiving=true;
+      _animator.applyRootMotion=true;
+      diveLane=_currentLane-2;
+      _currentLane-=2;
+      AudioManager.instance.PlayPlayerDiveSound();
+      _animator?.SetTrigger(rightDiveDash);
       Invoke(nameof(OnDiveFinished), 2.5f);
 
-        }
-    else
-      return;
+    }
     
   }
 
-  //this will be called inside animation clip at the end of dive animation
   public void OnDiveFinished()
   {
     _isDiving=false;
     _animator.applyRootMotion=false;
+    Debug.Log("Dive Lane: "+diveLane);
+    if (diveLane >= 0 && diveLane <= 4)
+    {
+      _animator?.SetBool(playAfterLeftDiveHash,false);
+      _animator?.SetBool(playAfterRightDiveHash,false);
+    }
+    else
+    {
+      _animator?.SetBool(playAfterRightDiveHash,true);
+      _animator?.SetBool(playAfterLeftDiveHash,true);
+    }
+    _currentLane = Mathf.Clamp(_currentLane, 0, TotalLanes - 1);
     Vector3 currentPos = _rb.position;
-    Quaternion currentRot= _rb.rotation;
     currentPos.y = _initialY;
     _rb.position = currentPos;
     _rb.rotation=_initialYRotation;
