@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.Rendering.DebugUI;
 
 public class SettingsManager : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Toggle _sfxToggle;
     [SerializeField] private Slider _musicVolumeSlider;
     [SerializeField] private Slider _sfxVolumeSlider;
 
@@ -17,12 +15,6 @@ public class SettingsManager : MonoBehaviour
 
         _sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
         _sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
-
-        _sfxToggle.isOn = PlayerPrefs.GetInt("IsSFXOn", 1) == 1 ? true:false;
-        _sfxToggle.onValueChanged.AddListener((v) =>
-        {
-            OnSFXToggled(v);
-        });
     }
 
     private void OnEnable()
@@ -32,20 +24,6 @@ public class SettingsManager : MonoBehaviour
 
         _sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
         _sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
-
-        _sfxToggle.isOn = PlayerPrefs.GetInt("IsSFXOn", 1) == 1 ? true : false;
-        _sfxToggle.onValueChanged.AddListener((v) =>
-        {
-            OnSFXToggled(v);
-        });
-    }
-
-    void OnDestroy()
-    {
-        if (_musicVolumeSlider != null)
-            _musicVolumeSlider.onValueChanged.RemoveListener(OnMusicVolumeChanged);
-        if (_sfxToggle != null)
-            _sfxToggle.onValueChanged.RemoveListener(OnSFXToggled);
     }
 
     private void OnMusicVolumeChanged(float value)
@@ -59,11 +37,4 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.SetFloat("SFXVolume", value);
     }
 
-    private void OnSFXToggled(bool isOn)
-    {
-        if (isOn) AudioManager.instance.UnMuteSFX();
-        else AudioManager.instance.MuteSFX();
-
-        PlayerPrefs.SetInt("IsSFXOn", isOn ? 1 : 0);
-    }
 }
