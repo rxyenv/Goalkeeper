@@ -33,7 +33,7 @@ public class BallController : MonoBehaviour
 
     private static readonly int KickHash = Animator.StringToHash("Kick");
     private static readonly int defeatHash=Animator.StringToHash("Defeat");
-    private readonly float[] lanes = { -8f, -4f ,0 ,4f ,8f };
+    private readonly float[] lanes = { -10f, -5f ,0 ,5f ,10f };
     private Rigidbody rb;
     private bool isResetting;
     private Vector3 startPosition;
@@ -44,7 +44,7 @@ public class BallController : MonoBehaviour
     private Coroutine activeCoroutine;
     private bool isGameOver;
     private bool _pendingSave;
-    public  bool shouldCurve=false;
+    private  bool shouldCurve=false;
     public float laneX;
     public float curveDirection;
     public Action onBallKick;
@@ -109,18 +109,18 @@ public class BallController : MonoBehaviour
         player?.ResetSaveGuard();
         laneX = lanes[UnityEngine.Random.Range(0, lanes.Length)];
         player.CanCatch();
-        shouldCurve = Mathf.Abs(laneX) == 8f;
+        shouldCurve = Mathf.Abs(laneX) == 10f;
         curveDirection = Mathf.Sign(laneX);
         if (shouldCurve)
         {
             float wideAimX=laneX+(curveDirection*5f);
-            direction = new Vector3(wideAimX - transform.position.x, 0, 26f).normalized;
+            direction = new Vector3(wideAimX - transform.position.x, 0, 27f).normalized;
             rb.AddForce(direction * forwardForce, ForceMode.Impulse);
-            rb.AddForce(Vector3.up * (upwardForce-2f), ForceMode.Impulse);
+            rb.AddForce(Vector3.up * (upwardForce-1f), ForceMode.Impulse);
         }
         else
         {
-            direction = new Vector3(laneX - transform.position.x, 0, 26f).normalized;
+            direction = new Vector3(laneX - transform.position.x, 0, 27f).normalized;
             rb.AddForce(direction * forwardForce, ForceMode.Impulse);
             rb.AddForce(Vector3.up * upwardForce, ForceMode.Impulse);
         }
