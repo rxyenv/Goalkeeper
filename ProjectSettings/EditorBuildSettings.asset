@@ -5,8 +5,8 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/TestScene-Badri.unity
-    guid: 1b0ef947c17d9134592e1123307f047e
+  - enabled: 1
+    path: Assets/Scenes/_Dev/Sandbox.unity
+    guid: e929486d9a2afd244ad1aa04f80318e0
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
