@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
     private static readonly int playAfterLeftDiveHash=Animator.StringToHash("AfterLeftDive");
     private static readonly int playAfterRightDiveHash=Animator.StringToHash("AfterRightDive");
     private const int TotalLanes = 5;
-    private int _currentLane;
+    public int _currentLane;
     private float _targetX;
     private Rigidbody _rb;
     private Animator _animator;
@@ -32,7 +32,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 pos;
     private float _initialY;
     private Quaternion _initialYRotation;
-    private int diveLane;
     public bool canHeader=false;
     public Action onBallStop;
 
@@ -99,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
   {
     if (!_isDiving)
     {
-      Vector3 targetPosition = new Vector3(_targetX, _rb.position.y, _rb.position.z);
+       Vector3 targetPosition = new Vector3(_targetX, _rb.position.y, _rb.position.z);
       _rb.MovePosition(Vector3.MoveTowards(_rb.position, targetPosition, speed * Time.fixedDeltaTime));
     }
     
@@ -120,13 +119,18 @@ public class PlayerMovement : MonoBehaviour
   {
     if (!_isDiving)
     {
-      _isDiving=true;
-      _animator.applyRootMotion=true;
-      diveLane=_currentLane+2;
-      _currentLane+=2;
-      AudioManager.instance.PlayPlayerDiveSound();
-      _animator?.SetTrigger(leftDiveHash);
-      Invoke(nameof(OnDiveFinished), 2.5f);
+      if(_currentLane==4)
+        return;
+      else
+      {
+        _currentLane+=2;
+        _animator.applyRootMotion=true;
+        _isDiving=true;
+        AudioManager.instance.PlayPlayerDiveSound();
+        _animator?.SetTrigger(leftDiveHash);
+        Invoke(nameof(OnDiveFinished), 2.5f);
+      }
+      
     }
     
   }
@@ -134,14 +138,17 @@ public class PlayerMovement : MonoBehaviour
   {
     if (!_isDiving)
     {
-      _isDiving=true;
-      _animator.applyRootMotion=true;
-      diveLane=_currentLane-2;
-      _currentLane-=2;
-      AudioManager.instance.PlayPlayerDiveSound();
-      _animator?.SetTrigger(rightDiveDash);
-      Invoke(nameof(OnDiveFinished), 2.5f);
-
+      if(_currentLane==0)
+        return;
+      else
+      {
+        _currentLane-=2;
+        _isDiving=true;
+        _animator.applyRootMotion=true;
+        AudioManager.instance.PlayPlayerDiveSound();
+        _animator?.SetTrigger(rightDiveDash);
+        Invoke(nameof(OnDiveFinished), 2.5f);
+      }
     }
     
   }
@@ -150,8 +157,7 @@ public class PlayerMovement : MonoBehaviour
   {
     _isDiving=false;
     _animator.applyRootMotion=false;
-    Debug.Log("Dive Lane: "+diveLane);
-    if (diveLane >= 0 && diveLane <= 4)
+    if (_currentLane==2)
     {
       _animator?.SetBool(playAfterLeftDiveHash,false);
       _animator?.SetBool(playAfterRightDiveHash,false);
