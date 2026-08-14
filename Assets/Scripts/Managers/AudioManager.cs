@@ -35,6 +35,9 @@ public class AudioManager : MonoBehaviour
         instance = this;
 
         GameManager.instance.OnGameStarted += HandleGameStart;
+
+        SetMusicVol(PlayerPrefs.GetFloat("MusicVolume"));
+        SetSFXVol(PlayerPrefs.GetFloat("SFXVolume"));
     }
 
     private void OnDestroy()
